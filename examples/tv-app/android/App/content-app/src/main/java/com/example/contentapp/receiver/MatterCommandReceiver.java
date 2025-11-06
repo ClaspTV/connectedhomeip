@@ -64,12 +64,15 @@ public class MatterCommandReceiver extends BroadcastReceiver {
           String response =
               CommandResponseHolder.getInstance().getCommandResponse(clusterId, commandId);
 
-          Intent in = new Intent(context, MainActivity.class);
-          in.putExtra(MatterIntentConstants.EXTRA_COMMAND_PAYLOAD, command);
-          in.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-          context.startActivity(in);
+          // Start or update the MainActivity with command information
+          Intent mainActivityIntent = new Intent(context, MainActivity.class);
+          mainActivityIntent.putExtra(MatterIntentConstants.EXTRA_CLUSTER_ID, String.valueOf(clusterId));
+          mainActivityIntent.putExtra(MatterIntentConstants.EXTRA_COMMAND_ID, String.valueOf(commandId));
+          mainActivityIntent.putExtra(MatterIntentConstants.EXTRA_COMMAND_PAYLOAD, command);
+          mainActivityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+          context.startActivity(mainActivityIntent);
 
-          Log.d(TAG, "Started activity. Now sending response");
+          Log.d(TAG, "Started activity. Now sending response: " + response);
 
           sendResponseViaPendingIntent(context, intent, response);
         } else {
@@ -83,6 +86,7 @@ public class MatterCommandReceiver extends BroadcastReceiver {
                     + "\":"
                     + AttributeHolder.getInstance().getAttributeValue(clusterId, attributeId)
                     + "}";
+            Log.d(TAG, "Sending attribute read response " + response + " for attribute " + attributeId);
             sendResponseViaPendingIntent(context, intent, response);
           } else {
             Log.e(

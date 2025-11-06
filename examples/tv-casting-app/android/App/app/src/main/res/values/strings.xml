@@ -51,4 +51,38 @@
     <string name="matter_select_application_basic_read_vendor_id_button_text">Application Basic Read Vendor ID</string>
     <string name="matter_select_media_playback_subscribe_to_current_state_button_text">Media Playback Subscribe to Current State</string>
     <string name="matter_shutdown_subscriptions_text">Shutdown subscriptions</string>
+
+
+    <!-- Media Playback Test Fragment Strings -->
+    <string name="media_playback_test_title">Media Playback Cluster Test</string>
+    <string name="status_initial_text">Status log will appear here...</string>
+    <string name="attributes_section_title">Attributes</string>
+    <string name="commands_section_title">Playback Commands</string>
+
+    <string name="matter_select_app_launcher_button_text">App Launcher</string>
+    <string name="content_app_application_id_prompt_text">Content App Application ID</string>
+    <string name="content_app_vendor_id_prompt_text">Content App Vendor ID</string>
+    <string name="default_content_app_application_id_string">com.example.contentapp</string>
+    <string name="default_content_app_vendor_id">1111</string>
+    <string name="launch_app_button_text">Launch App</string>
+    <string name="get_app_status_button_text">Get App Status</string>
+    <string name="subscribe_app_status_button_text">Subscribe App Status</string>
+    <string name="app_launcher_fragment_title">App Launcher</string>
+    <string name="launch_app_command_title">Launch App</string>
+
+    <!-- Button text strings -->
+    <string name="subscribe_to_current_state">Subscribe to CurrentState</string>
+    <string name="read_all_attributes">Read All Attributes</string>
+    <string name="play_button_text">Play</string>
+    <string name="pause_button_text">Pause</string>
+    <string name="stop_button_text">Stop</string>
+    <string name="start_over_button_text">Start Over</string>
+    <string name="previous_button_text">Previous</string>
+    <string name="next_button_text">Next</string>
+    <string name="rewind_button_text">Rewind</string>
+    <string name="fast_forward_button_text">Fast Forward</string>
+    <string name="skip_forward_button_text">Skip +10s</string>
+    <string name="skip_backward_button_text">Skip -10s</string>
+    <string name="seek_button_text">Seek to 30s</string>
+    <string name="shutdown_subscriptions_button_text">Shutdown All Subscriptions</string>
 </resources>

@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="32dp"
     tools:context=".MainActivity">
 
     <LinearLayout
@@ -11,35 +12,48 @@
         android:layout_height="wrap_content"
         android:gravity="left"
         android:orientation="vertical"
-        android:padding="10sp">
+        android:padding="10dp">
 
         <TextView
             android:id="@+id/helloTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Hello World!"
-            android:textAppearance="@style/TextAppearance.AppCompat.Large"
-            app:layout_constraintBottom_toTopOf="@+id/commandTextView"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+
+        <TextView
+            android:id="@+id/lastCommandLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Last Command Received:"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="4dp"/>
 
         <TextView
             android:id="@+id/commandTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toEndOf="@id/helloTextView"
-            android:textAppearance="@style/TextAppearance.AppCompat.Large"
-            android:text="No Command!!"
-            app:layout_constraintBottom_toTopOf="@+id/updateAttributeButton"
-            app:layout_constraintTop_toBottomOf="@+id/helloTextView" />
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:text="No Command!!" />
+
+        <TextView
+            android:id="@+id/mediaPlaybackLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Media Playback State:"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="4dp"/>
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:padding="10sp">
+            android:padding="10dp">
 
             <Spinner
-                android:layout_width="20mm"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/spinnerAttribute"
                 android:background="@android:drawable/btn_dropdown"
@@ -48,35 +62,73 @@
 
             <Button
                 android:id="@+id/updateAttributeButton"
-                android:layout_width="20mm"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="388dp"
-                android:layout_toEndOf="@id/helloTextView"
                 android:text="Update Attribute" />
 
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/additionalAttributesLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Additional Attributes:"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="4dp"/>
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:padding="10sp">
+            android:padding="10dp">
+
+            <Spinner
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/spinnerAdditionalAttributes"
+                android:background="@android:drawable/btn_dropdown"
+                android:spinnerMode="dropdown" />
+
+
+            <Button
+                android:id="@+id/updateAdditionalAttributeButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Update" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/setupPinLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Setup PIN:"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="4dp"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="10dp">
 
             <EditText
                 android:inputType="number"
                 android:id="@+id/setupPINText"
-                android:layout_width="20mm"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="20202021"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
             <Button
                 android:id="@+id/setupPINButton"
-                android:layout_width="20mm"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Update PIN" />
 
         </LinearLayout>
 
     </LinearLayout>
-</FrameLayout>
+</ScrollView>
