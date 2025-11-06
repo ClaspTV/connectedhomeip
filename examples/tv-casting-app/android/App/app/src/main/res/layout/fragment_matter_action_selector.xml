@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".matter.casting.ActionSelectorFragment">
+    tools:context="com.matter.casting.ActionSelectorFragment">
 
     <RelativeLayout
         android:layout_width="wrap_content"
@@ -19,13 +19,22 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Display2" />
 
         <Button
+            android:id="@+id/selectAppLauncherButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/matter_select_app_launcher_button_text"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:layout_marginRight="10sp"
+            android:layout_below="@id/action_selector_heading" />
+
+        <Button
             android:id="@+id/selectContentLauncherLaunchURLButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/matter_select_content_launcher_launch_url_button_text"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:layout_marginRight="10sp"
-            android:layout_below="@id/action_selector_heading" />
+            android:layout_below="@id/selectAppLauncherButton" />
 
         <Button
             android:id="@+id/selectApplicationBasicReadVendorIDButton"
