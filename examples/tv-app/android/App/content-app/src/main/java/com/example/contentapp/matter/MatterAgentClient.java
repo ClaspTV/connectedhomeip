@@ -53,6 +53,7 @@ public class MatterAgentClient {
 
   public boolean reportClusters(SetSupportedClustersRequest supportedClustersRequest) {
     IMatterAppAgent matterAgent = getOrReinitializeMatterAgent();
+    Log.d(TAG, "reportClusters called, matterAgent = " + matterAgent + ", supportedClustersRequest = " + supportedClustersRequest);
     if (matterAgent == null) return false;
     try {
       return matterAgent.setSupportedClusters(supportedClustersRequest);
@@ -66,6 +67,7 @@ public class MatterAgentClient {
     IMatterAppAgent matterAgent = getOrReinitializeMatterAgent();
     if (matterAgent == null) return false;
     try {
+      Log.d(TAG, "reportAttributeChange called, clusterId = " + clusterId + ", attributeId = " + attributeId);
       return matterAgent.reportAttributeChange(clusterId, attributeId);
     } catch (RemoteException e) {
       Log.e(TAG, "Error invoking remote method to report attribute change to Matter agent");
@@ -112,7 +114,9 @@ public class MatterAgentClient {
   private synchronized boolean bindService(Context context) {
     ServiceConnection serviceConnection = new MyServiceConnection();
     final Intent intent = new Intent(MatterIntentConstants.ACTION_MATTER_AGENT);
+    Log.i(TAG, "Binding to service with intent " + intent + " its component " + intent.getComponent());
     if (intent.getComponent() == null) {
+      Log.d(TAG, "Trying to resolve service for intent " + intent);
       final ResolveInfo resolveInfo =
           resolveBindIntent(
               context,
@@ -125,6 +129,7 @@ public class MatterAgentClient {
       }
       final ComponentName component =
           new ComponentName(resolveInfo.serviceInfo.packageName, resolveInfo.serviceInfo.name);
+      Log.d(TAG, "Resolved service " + resolveInfo + " component " + component);
       intent.setComponent(component);
     }
 
@@ -167,11 +172,13 @@ public class MatterAgentClient {
     // Check for Services able to handle this intent.
     final List<ResolveInfo> infos = pm.queryIntentServices(bindIntent, 0);
     if (infos == null || infos.isEmpty()) {
+      Log.w(TAG, "No services found for intent " + bindIntent);
       return null;
     }
 
     // For all the services returned, remove those that don't have the specified permissions.
     int size = infos.size();
+    Log.d(TAG, "Found " + size + " services for intent " + bindIntent);
     for (int i = size - 1; i >= 0; --i) {
       final ResolveInfo resolveInfo = infos.get(i);
       // The service must be protected by the bindPermission
@@ -197,6 +204,7 @@ public class MatterAgentClient {
       }
     }
     size = infos.size();
+    Log.d(TAG, "After filtering by permissions, the size of resolved infos is " + size);
 
     if (size > 1) {
       // This is suspicious. This means we've got at least 2 services both claiming to handle
