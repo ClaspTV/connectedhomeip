@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".matter.casting.ContentLauncherLaunchURLExampleFragment">
-
+    tools:context="com.matter.casting.ContentLauncherLaunchURLExampleFragment">
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="10sp">
@@ -18,14 +17,16 @@
             android:text="@string/content_launcher_fragment_title"
             android:textAppearance="@style/TextAppearance.AppCompat.Display2" />
 
+        <!-- Launch URL Section -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/launch_url_command_title"
-            android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:layout_marginTop="16dp" />
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal" >
 
@@ -38,14 +39,15 @@
 
             <EditText
                 android:id="@+id/contentUrlEditText"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:text="@string/default_content_url"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
         </LinearLayout>
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal" >
 
@@ -58,31 +60,80 @@
 
             <EditText
                 android:id="@+id/contentDisplayStringEditText"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:text="@string/default_content_display_string"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
         </LinearLayout>
 
-        <LinearLayout
+        <Button
+            android:id="@+id/launchUrlButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:text="@string/launch_url_button_text"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:layout_marginTop="10sp" />
 
-            <Button
-                android:id="@+id/launchUrlButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/launch_url_button_text"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                android:layout_marginRight="10sp" />
+        <!-- Launch Content Section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Launch Content Command"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:layout_marginTop="24dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
 
             <TextView
-                android:id="@+id/launcherResult"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+                android:text="Video GUID:"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:layout_marginRight="10sp"/>
+
+            <EditText
+                android:id="@+id/videoGuidEditText"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="sample_video_123"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
         </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <CheckBox
+                android:id="@+id/autoPlayCheckBox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Auto Play"
+                android:checked="true"/>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/launchContentButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Launch Content"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:layout_marginTop="10sp" />
+
+        <TextView
+            android:id="@+id/launcherResult"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="#EEEEEE"
+            android:padding="8dp"
+            android:minHeight="100dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+
     </LinearLayout>
-</FrameLayout>
+</ScrollView>

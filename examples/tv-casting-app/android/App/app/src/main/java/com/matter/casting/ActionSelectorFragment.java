@@ -33,6 +33,7 @@ public class ActionSelectorFragment extends Fragment {
   private final CastingPlayer selectedCastingPlayer;
   private final boolean useCommissionerGeneratedPasscode;
 
+  private View.OnClickListener launchAppButtonClickListener;
   private View.OnClickListener selectContentLauncherButtonClickListener;
   private View.OnClickListener selectApplicationBasicButtonClickListener;
   private View.OnClickListener selectMediaPlaybackButtonClickListener;
@@ -67,6 +68,12 @@ public class ActionSelectorFragment extends Fragment {
   public View onCreateView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     ActionSelectorFragment.Callback callback = (ActionSelectorFragment.Callback) this.getActivity();
+      this.launchAppButtonClickListener =
+              v -> {
+                  Log.d(TAG, "handle() called on launchUrlButtonClickListener");
+                  callback.handleAppLauncherSelected(
+                          selectedCastingPlayer, useCommissionerGeneratedPasscode);
+              };
     this.selectContentLauncherButtonClickListener =
         v -> {
           Log.d(TAG, "handle() called on selectContentLauncherButtonClickListener");
@@ -101,6 +108,9 @@ public class ActionSelectorFragment extends Fragment {
     super.onViewCreated(view, savedInstanceState);
     Log.d(TAG, "ActionSelectorFragment.onViewCreated called");
     getView()
+        .findViewById(R.id.selectAppLauncherButton)
+        .setOnClickListener(launchAppButtonClickListener);
+    getView()
         .findViewById(R.id.selectContentLauncherLaunchURLButton)
         .setOnClickListener(selectContentLauncherButtonClickListener);
     getView()
@@ -109,12 +119,14 @@ public class ActionSelectorFragment extends Fragment {
     getView()
         .findViewById(R.id.selectMediaPlaybackSubscribeToCurrentStateButton)
         .setOnClickListener(selectMediaPlaybackButtonClickListener);
-
     getView().findViewById(R.id.disconnectButton).setOnClickListener(disconnectButtonClickListener);
   }
 
   /** Interface for notifying the host. */
   public interface Callback {
+    /** Notifies listener to trigger transition on selection of App Launcher cluster */
+    void handleAppLauncherSelected(
+          CastingPlayer selectedCastingPlayer, boolean useCommissionerGeneratedPasscode);
     /** Notifies listener to trigger transition on selection of Content Launcher cluster */
     void handleContentLauncherLaunchURLSelected(
         CastingPlayer selectedCastingPlayer, boolean useCommissionerGeneratedPasscode);
