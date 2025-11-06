@@ -85,6 +85,15 @@ public class MainActivity extends AppCompatActivity
   }
 
   @Override
+  public void handleAppLauncherSelected(CastingPlayer selectedCastingPlayer, boolean useCommissionerGeneratedPasscode) {
+    showFragment(
+            AppLauncherExampleFragment.newInstance(
+                    selectedCastingPlayer, useCommissionerGeneratedPasscode
+            )
+    );
+  }
+
+  @Override
   public void handleContentLauncherLaunchURLSelected(
       CastingPlayer selectedCastingPlayer, boolean useCommissionerGeneratedPasscode) {
     showFragment(
@@ -104,7 +113,7 @@ public class MainActivity extends AppCompatActivity
   public void handleMediaPlaybackSubscribeToCurrentStateSelected(
       CastingPlayer selectedCastingPlayer, boolean useCommissionerGeneratedPasscode) {
     showFragment(
-        MediaPlaybackSubscribeToCurrentStateExampleFragment.newInstance(
+            MediaPlaybackTestFragment.newInstance(
             selectedCastingPlayer, useCommissionerGeneratedPasscode));
   }
 

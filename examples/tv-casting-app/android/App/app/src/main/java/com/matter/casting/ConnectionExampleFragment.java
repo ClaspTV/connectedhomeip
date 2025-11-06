@@ -122,6 +122,7 @@ public class ConnectionExampleFragment extends Fragment {
     connectionFragmentNextButton.setOnClickListener(
         v -> {
           Log.i(TAG, "onViewCreated() NEXT clicked. Calling handleConnectionComplete()");
+          EndpointSelectorExample.printEndPoints(targetCastingPlayer);
           callback.handleConnectionComplete(targetCastingPlayer, useCommissionerGeneratedPasscode);
         });
 
