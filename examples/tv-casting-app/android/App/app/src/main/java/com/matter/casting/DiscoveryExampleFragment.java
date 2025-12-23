@@ -36,7 +36,9 @@ import com.matter.casting.core.CastingPlayerDiscovery;
 import com.matter.casting.core.MatterCastingPlayerDiscovery;
 import com.matter.casting.support.MatterError;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class DiscoveryExampleFragment extends Fragment {
@@ -48,6 +50,9 @@ public class DiscoveryExampleFragment extends Fragment {
   public static TextView matterDiscoveryErrorMessageTextView;
   private static final List<CastingPlayer> castingPlayerList = new ArrayList<>();
   private static ArrayAdapter<CastingPlayer> arrayAdapter;
+    private static final Map<String, Boolean> deviceSeenMap = new HashMap<>();
+    private Handler discoveryHandler;
+    private Runnable discoveryRunnable;
 
   // Get a singleton instance of the MatterCastingPlayerDiscovery
   private static final CastingPlayerDiscovery matterCastingPlayerDiscovery =
@@ -70,11 +75,22 @@ public class DiscoveryExampleFragment extends Fragment {
                   "DiscoveryExampleFragment onAdded() Discovered CastingPlayer deviceId: "
                       + castingPlayer.getDeviceId());
               // Display CastingPlayer info on the screen
-              new Handler(Looper.getMainLooper())
-                  .post(
-                      () -> {
-                        arrayAdapter.add(castingPlayer);
-                      });
+                new Handler(Looper.getMainLooper())
+                    .post(
+                        () -> {
+                            // Check if player with same deviceId exists and replace it
+                            final Optional<CastingPlayer> existingPlayer =
+                                    castingPlayerList
+                                            .stream()
+                                            .filter(player -> castingPlayer.getDeviceId().equals(player.getDeviceId()))
+                                            .findFirst();
+                            if (existingPlayer.isPresent()) {
+                                arrayAdapter.remove(existingPlayer.get());
+                            }
+                            arrayAdapter.add(castingPlayer);
+                            deviceSeenMap.put(castingPlayer.getDeviceId(), true);
+                            Log.d(TAG, "Device seen map updated with deviceId: " + castingPlayer.getDeviceId());
+                        });
             }
 
             @Override
@@ -199,24 +215,59 @@ public class DiscoveryExampleFragment extends Fragment {
         });
   }
 
-  @Override
-  public void onResume() {
-    Log.i(TAG, "onResume() called");
-    super.onResume();
-    MatterError err =
-        matterCastingPlayerDiscovery.removeCastingPlayerChangeListener(castingPlayerChangeListener);
-    if (err.hasError()) {
-      Log.e(TAG, "onResume() removeCastingPlayerChangeListener() err: " + err);
+    @Override
+    public void onResume() {
+        Log.i(TAG, "onResume() called");
+        super.onResume();
+        MatterError err =
+                matterCastingPlayerDiscovery.removeCastingPlayerChangeListener(castingPlayerChangeListener);
+        if (err.hasError()) {
+            Log.e(TAG, "onResume() removeCastingPlayerChangeListener() err: " + err);
+        }
+
+        // Stop and restart discovery every 5 seconds
+        discoveryHandler = new Handler(Looper.getMainLooper());
+        discoveryRunnable = new Runnable() {
+            @Override
+            public void run() {
+                stopDiscovery();
+
+                // Remove devices that were not seen in the last iteration
+                List<CastingPlayer> toRemove = new ArrayList<>();
+                for (CastingPlayer player : castingPlayerList) {
+                    if (!deviceSeenMap.getOrDefault(player.getDeviceId(), false)) {
+                        Log.i(TAG, "Removing stale device from device seen map: " + player.getDeviceId());
+                        toRemove.add(player);
+                    }
+                }
+                for (CastingPlayer player : toRemove) {
+                    arrayAdapter.remove(player);
+                    deviceSeenMap.remove(player.getDeviceId());
+                }
+
+                // Mark all devices as not seen for the new iteration
+                for (String deviceId : deviceSeenMap.keySet()) {
+                    deviceSeenMap.put(deviceId, false);
+                }
+
+                if (!startDiscovery()) {
+                    Log.e(TAG, "Periodic startDiscovery() call Failed");
+                }
+                discoveryHandler.postDelayed(this, 5000);
+            }
+        };
+        discoveryHandler.post(discoveryRunnable);
     }
-    if (!startDiscovery()) {
-      Log.e(TAG, "onResume() Warning: startDiscovery() call Failed");
-    }
-  }
 
   @Override
   public void onPause() {
     super.onPause();
     Log.i(TAG, "DiscoveryExampleFragment onPause() called, calling stopDiscovery()");
+
+    if (discoveryHandler != null && discoveryRunnable != null) {
+      discoveryHandler.removeCallbacks(discoveryRunnable);
+    }
+
     // Stop discovery when leaving the fragment, for example, while displaying the
     // ConnectionExampleFragment.
     stopDiscovery();
@@ -233,8 +284,6 @@ public class DiscoveryExampleFragment extends Fragment {
     Log.i(TAG, "startDiscovery() called");
     matterDiscoveryErrorMessageTextView.setText(
         getString(R.string.matter_discovery_error_message_initial));
-
-    arrayAdapter.clear();
 
     // Add the implemented CastingPlayerChangeListener to listen to changes in the discovered
     // CastingPlayers
