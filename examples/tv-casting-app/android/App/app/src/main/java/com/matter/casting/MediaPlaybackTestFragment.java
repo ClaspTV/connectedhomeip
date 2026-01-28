@@ -25,7 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.chip.casting.R;
+import com.R;
 import com.matter.casting.core.CastingApp;
 import com.matter.casting.core.CastingPlayer;
 import com.matter.casting.core.Endpoint;
