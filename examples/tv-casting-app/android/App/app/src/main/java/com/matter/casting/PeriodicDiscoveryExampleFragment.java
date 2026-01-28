@@ -16,7 +16,6 @@
  */
 package com.matter.casting;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -30,17 +29,19 @@ import android.widget.ListView;
 import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import com.chip.casting.R;
+import com.R;
 import com.matter.casting.core.CastingPlayer;
 import com.matter.casting.core.CastingPlayerDiscovery;
 import com.matter.casting.core.MatterCastingPlayerDiscovery;
 import com.matter.casting.support.MatterError;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
-public class DiscoveryExampleFragment extends Fragment {
-  private static final String TAG = DiscoveryExampleFragment.class.getSimpleName();
+public class PeriodicDiscoveryExampleFragment extends Fragment {
+  private static final String TAG = PeriodicDiscoveryExampleFragment.class.getSimpleName();
   // 35 represents device type of Matter Casting Player
   private static final Long DISCOVERY_TARGET_DEVICE_TYPE = 35L;
   private static final int DISCOVERY_RUNTIME_SEC = 15;
@@ -48,6 +49,9 @@ public class DiscoveryExampleFragment extends Fragment {
   public static TextView matterDiscoveryErrorMessageTextView;
   private static final List<CastingPlayer> castingPlayerList = new ArrayList<>();
   private static ArrayAdapter<CastingPlayer> arrayAdapter;
+    private static final Map<String, Boolean> deviceSeenMap = new HashMap<>();
+    private Handler discoveryHandler;
+    private Runnable discoveryRunnable;
 
   // Get a singleton instance of the MatterCastingPlayerDiscovery
   private static final CastingPlayerDiscovery matterCastingPlayerDiscovery =
@@ -70,11 +74,22 @@ public class DiscoveryExampleFragment extends Fragment {
                   "DiscoveryExampleFragment onAdded() Discovered CastingPlayer deviceId: "
                       + castingPlayer.getDeviceId());
               // Display CastingPlayer info on the screen
-              new Handler(Looper.getMainLooper())
-                  .post(
-                      () -> {
-                        arrayAdapter.add(castingPlayer);
-                      });
+                new Handler(Looper.getMainLooper())
+                    .post(
+                        () -> {
+                            // Check if player with same deviceId exists and replace it
+                            final Optional<CastingPlayer> existingPlayer =
+                                    castingPlayerList
+                                            .stream()
+                                            .filter(player -> castingPlayer.getDeviceId().equals(player.getDeviceId()))
+                                            .findFirst();
+                            if (existingPlayer.isPresent()) {
+                                arrayAdapter.remove(existingPlayer.get());
+                            }
+                            arrayAdapter.add(castingPlayer);
+                            deviceSeenMap.put(castingPlayer.getDeviceId(), true);
+                            Log.d(TAG, "Device seen map updated with deviceId: " + castingPlayer.getDeviceId());
+                        });
             }
 
             @Override
@@ -131,9 +146,9 @@ public class DiscoveryExampleFragment extends Fragment {
             }
           };
 
-  public static DiscoveryExampleFragment newInstance() {
+  public static PeriodicDiscoveryExampleFragment newInstance() {
     Log.i(TAG, "newInstance() called");
-    return new DiscoveryExampleFragment();
+    return new PeriodicDiscoveryExampleFragment();
   }
 
   @Override
@@ -199,24 +214,59 @@ public class DiscoveryExampleFragment extends Fragment {
         });
   }
 
-  @Override
-  public void onResume() {
-    Log.i(TAG, "onResume() called");
-    super.onResume();
-    MatterError err =
-        matterCastingPlayerDiscovery.removeCastingPlayerChangeListener(castingPlayerChangeListener);
-    if (err.hasError()) {
-      Log.e(TAG, "onResume() removeCastingPlayerChangeListener() err: " + err);
+    @Override
+    public void onResume() {
+        Log.i(TAG, "onResume() called");
+        super.onResume();
+        MatterError err =
+                matterCastingPlayerDiscovery.removeCastingPlayerChangeListener(castingPlayerChangeListener);
+        if (err.hasError()) {
+            Log.e(TAG, "onResume() removeCastingPlayerChangeListener() err: " + err);
+        }
+
+        // Stop and restart discovery every 5 seconds
+        discoveryHandler = new Handler(Looper.getMainLooper());
+        discoveryRunnable = new Runnable() {
+            @Override
+            public void run() {
+                stopDiscovery();
+
+                // Remove devices that were not seen in the last iteration
+                List<CastingPlayer> toRemove = new ArrayList<>();
+                for (CastingPlayer player : castingPlayerList) {
+                    if (!deviceSeenMap.getOrDefault(player.getDeviceId(), false)) {
+                        Log.i(TAG, "Removing stale device from device seen map: " + player.getDeviceId());
+                        toRemove.add(player);
+                    }
+                }
+                for (CastingPlayer player : toRemove) {
+                    arrayAdapter.remove(player);
+                    deviceSeenMap.remove(player.getDeviceId());
+                }
+
+                // Mark all devices as not seen for the new iteration
+                for (String deviceId : deviceSeenMap.keySet()) {
+                    deviceSeenMap.put(deviceId, false);
+                }
+
+                if (!startDiscovery()) {
+                    Log.e(TAG, "Periodic startDiscovery() call Failed");
+                }
+                discoveryHandler.postDelayed(this, 5000);
+            }
+        };
+        discoveryHandler.post(discoveryRunnable);
     }
-    if (!startDiscovery()) {
-      Log.e(TAG, "onResume() Warning: startDiscovery() call Failed");
-    }
-  }
 
   @Override
   public void onPause() {
     super.onPause();
     Log.i(TAG, "DiscoveryExampleFragment onPause() called, calling stopDiscovery()");
+
+    if (discoveryHandler != null && discoveryRunnable != null) {
+      discoveryHandler.removeCallbacks(discoveryRunnable);
+    }
+
     // Stop discovery when leaving the fragment, for example, while displaying the
     // ConnectionExampleFragment.
     stopDiscovery();
@@ -233,8 +283,6 @@ public class DiscoveryExampleFragment extends Fragment {
     Log.i(TAG, "startDiscovery() called");
     matterDiscoveryErrorMessageTextView.setText(
         getString(R.string.matter_discovery_error_message_initial));
-
-    arrayAdapter.clear();
 
     // Add the implemented CastingPlayerChangeListener to listen to changes in the discovered
     // CastingPlayers
@@ -300,97 +348,5 @@ public class DiscoveryExampleFragment extends Fragment {
       matterDiscoveryErrorMessageTextView.setText(
           getString(R.string.matter_discovery_error_message_stop_error) + err);
     }
-  }
-}
-
-class CastingPlayerArrayAdapter extends ArrayAdapter<CastingPlayer> {
-  private final List<CastingPlayer> playerList;
-  private final Context context;
-  private LayoutInflater inflater;
-  private static final String TAG = CastingPlayerArrayAdapter.class.getSimpleName();
-
-  public CastingPlayerArrayAdapter(Context context, List<CastingPlayer> playerList) {
-    super(context, 0, playerList);
-    Log.i(TAG, "CastingPlayerArrayAdapter() constructor called");
-    this.context = context;
-    this.playerList = playerList;
-    inflater = (LayoutInflater.from(context));
-  }
-
-  @Override
-  public View getView(int i, View view, ViewGroup viewGroup) {
-    view = inflater.inflate(R.layout.commissionable_player_list_item, null);
-    String buttonText = getCastingPlayerButtonText(playerList.get(i));
-    Button playerDescription = view.findViewById(R.id.commissionable_player_description);
-    playerDescription.setText(buttonText);
-
-    // OnClickListener for the CastingPLayer button, to be used for the Commissionee-Generated
-    // passcode commissioning flow.
-    View.OnClickListener clickListener =
-        v -> {
-          CastingPlayer castingPlayer = playerList.get(i);
-          Log.d(
-              TAG,
-              "OnClickListener.onClick() called for CastingPlayer with deviceId: "
-                  + castingPlayer.getDeviceId());
-          DiscoveryExampleFragment.Callback onClickCallback =
-              (DiscoveryExampleFragment.Callback) context;
-          onClickCallback.handleConnectionButtonClicked(castingPlayer, false);
-        };
-    playerDescription.setOnClickListener(clickListener);
-
-    // OnLongClickListener for the CastingPLayer button, to be used for the Commissioner-Generated
-    // passcode commissioning flow.
-    View.OnLongClickListener longClickListener =
-        v -> {
-          CastingPlayer castingPlayer = playerList.get(i);
-          if (!castingPlayer.getSupportsCommissionerGeneratedPasscode()) {
-            Log.e(
-                TAG,
-                "OnLongClickListener.onLongClick() called for CastingPlayer with deviceId "
-                    + castingPlayer.getDeviceId()
-                    + ". This CastingPlayer does not support Commissioner-Generated passcode commissioning.");
-
-            DiscoveryExampleFragment.matterDiscoveryErrorMessageTextView.setText(
-                "The selected Casting Player does not support Commissioner-Generated passcode commissioning");
-            return true;
-          }
-          Log.d(
-              TAG,
-              "OnLongClickListener.onLongClick() called for CastingPlayer with deviceId "
-                  + castingPlayer.getDeviceId()
-                  + ", attempting the Commissioner-Generated passcode commissioning flow.");
-          DiscoveryExampleFragment.Callback onClickCallback =
-              (DiscoveryExampleFragment.Callback) context;
-          onClickCallback.handleConnectionButtonClicked(castingPlayer, true);
-          return true;
-        };
-    playerDescription.setOnLongClickListener(longClickListener);
-    return view;
-  }
-
-  private String getCastingPlayerButtonText(CastingPlayer player) {
-    String main = player.getDeviceName() != null ? player.getDeviceName() : "";
-    String aux = "" + (player.getDeviceId() != null ? "Device ID: " + player.getDeviceId() : "");
-    aux +=
-        player.getProductId() > 0
-            ? (aux.isEmpty() ? "" : ", ") + "Product ID: " + player.getProductId()
-            : "";
-    aux +=
-        player.getVendorId() > 0
-            ? (aux.isEmpty() ? "" : ", ") + "Vendor ID: " + player.getVendorId()
-            : "";
-    aux +=
-        player.getDeviceType() > 0
-            ? (aux.isEmpty() ? "" : ", ") + "Device Type: " + player.getDeviceType()
-            : "";
-    aux += (aux.isEmpty() ? "" : ", ") + "Resolved IP?: " + (player.getIpAddresses().size() > 0);
-    aux +=
-        (aux.isEmpty() ? "" : ", ")
-            + "Supports Commissioner-Generated Passcode: "
-            + (player.getSupportsCommissionerGeneratedPasscode());
-
-    aux = aux.isEmpty() ? aux : "\n" + aux;
-    return main + aux;
   }
 }
