@@ -4,7 +4,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
-import com.R;
+import com.chip.casting.R;
 import com.matter.casting.core.CastingPlayer;
 import com.matter.casting.core.Endpoint;
 import java.util.List;
