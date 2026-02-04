@@ -37,6 +37,7 @@ import java.util.Optional;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import chip.devicecontroller.ChipClusters;
+import chip.devicecontroller.ChipDeviceControllerException;
 import chip.devicecontroller.ChipStructs;
 
 /** A {@link Fragment} to send Content Launcher LaunchURL command using the TV Casting App. */
@@ -143,7 +144,16 @@ public class AppLauncherExampleFragment extends Fragment {
 
                 @Override
                 public void onError(Exception error) {
-                  Log.e(TAG, "LaunchApp failure " + error);
+                  Log.e(TAG, "LaunchApp failure " + error + ", exception class: " + error.getClass().getSimpleName());
+                    if (error instanceof ChipDeviceControllerException) {
+                        ChipDeviceControllerException chipDeviceControllerException = (ChipDeviceControllerException) error;
+                        long errorCode = chipDeviceControllerException.errorCode;
+                        Log.e(TAG, "Error code: " + errorCode);
+                        if (errorCode == 0x7e) {
+                            Log.e(TAG, "Removing fabric to recover from error 0x7e");
+                            selectedCastingPlayer.removeFabric();
+                        }
+                    }
                   new Handler(Looper.getMainLooper())
                       .post(
                           () -> {
