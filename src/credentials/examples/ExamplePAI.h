@@ -46,5 +46,10 @@ extern const uint8_t kDevelopmentPAI_Cert_FFF3[440];
 extern const uint8_t kDevelopmentPAI_PublicKey_FFF3[65];
 extern const uint8_t kDevelopmentPAI_PrivateKey_FFF3[32];
 #endif
+#if CHIP_DEVICE_CONFIG_DEVICE_VENDOR_ID == 0x1619
+extern const uint8_t kDevelopmentPAI_Cert_FFF1[463];
+extern const uint8_t kDevelopmentPAI_PublicKey_FFF1[65];
+extern const uint8_t kDevelopmentPAI_PrivateKey_FFF1[32];
+#endif
 } // namespace DevelopmentCerts
 } // namespace chip
