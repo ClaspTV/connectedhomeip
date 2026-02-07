@@ -54,7 +54,7 @@
  * (Vendor ID or VID) is a 16-bit number that uniquely identifies a particular product manufacturer, vendor, or group thereof.
  * For production, replace with the Vendor ID allocated for you by the Connectivity Standards Alliance.
  */
-#define CHIP_DEVICE_CONFIG_DEVICE_VENDOR_ID 0xFFF1
+#define CHIP_DEVICE_CONFIG_DEVICE_VENDOR_ID 0x1619
 
 /**
  * CHIP_DEVICE_CONFIG_DEVICE_PRODUCT_ID
@@ -62,11 +62,11 @@
  * 0x8001 (32769): A Product Identifier (Product ID or PID) is a 16-bit number that uniquely identifies a product of a vendor.
  * The Product ID is assigned by the vendor and SHALL be unique for each product within a Vendor ID.
  */
-#define CHIP_DEVICE_CONFIG_DEVICE_PRODUCT_ID 0x8001
+#define CHIP_DEVICE_CONFIG_DEVICE_PRODUCT_ID 0x0001
 
 #define CHIP_DEVICE_CONFIG_USE_TEST_SETUP_DISCRIMINATOR 0xF00
 
-#define CHIP_DEVICE_CONFIG_DEVICE_NAME "Test TV casting app"
+#define CHIP_DEVICE_CONFIG_DEVICE_NAME "your mobile app"
 
 #define CHIP_DEVICE_CONFIG_ENABLE_PAIRING_AUTOSTART 0
 
