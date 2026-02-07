@@ -162,7 +162,7 @@ public class ConnectionExampleFragment extends Fragment {
                         + targetAppInfo.getVendorId());
               }
 
-              idOptions.addTargetAppInfo(targetAppInfo);
+              // idOptions.addTargetAppInfo(targetAppInfo);
 
               ConnectionCallbacks connectionCallbacks =
                   new ConnectionCallbacks(
