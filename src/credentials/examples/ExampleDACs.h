@@ -511,5 +511,10 @@ extern const uint8_t kDevelopmentDAC_Cert_FFF3_801F[492];
 extern const uint8_t kDevelopmentDAC_PublicKey_FFF3_801F[65];
 extern const uint8_t kDevelopmentDAC_PrivateKey_FFF3_801F[32];
 #endif
+#if CHIP_DEVICE_CONFIG_DEVICE_VENDOR_ID == 0x1619 && CHIP_DEVICE_CONFIG_DEVICE_PRODUCT_ID == 0x0001
+extern const uint8_t kDevelopmentDAC_Cert_FFF1_8000[493];
+extern const uint8_t kDevelopmentDAC_PublicKey_FFF1_8000[65];
+extern const uint8_t kDevelopmentDAC_PrivateKey_FFF1_8000[32];
+#endif
 } // namespace DevelopmentCerts
 } // namespace chip
