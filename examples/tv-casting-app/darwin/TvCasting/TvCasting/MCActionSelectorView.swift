@@ -19,9 +19,11 @@ import SwiftUI
 
 struct MCActionSelectorView: View {
     var selectedCastingPlayer: MCCastingPlayer?
+    var useCommissionerGeneratedPasscode: Bool
 
-    init(_selectedCastingPlayer: MCCastingPlayer?) {
+    init(_selectedCastingPlayer: MCCastingPlayer?, _useCommissionerGeneratedPasscode: Bool = false) {
         self.selectedCastingPlayer = _selectedCastingPlayer
+        self.useCommissionerGeneratedPasscode = _useCommissionerGeneratedPasscode
     }
     
     var body: some View {
@@ -52,6 +54,20 @@ struct MCActionSelectorView: View {
                 destination: MCMediaPlaybackSubscribeToCurrentStateExampleView(_selectedCastingPlayer: self.selectedCastingPlayer),
                 label: {
                     Text("MediaPlayback Subscribe to CurrentState")
+                        .frame(width: 300, height: 30, alignment: .center)
+                        .border(Color.black, width: 1)
+                }
+            ).background(Color.blue)
+                .foregroundColor(Color.white)
+                .padding()
+
+            NavigationLink(
+                destination: MCAppLauncherExampleView(
+                    _selectedCastingPlayer: self.selectedCastingPlayer,
+                    _useCommissionerGeneratedPasscode: self.useCommissionerGeneratedPasscode
+                ),
+                label: {
+                    Text("Application Launcher")
                         .frame(width: 300, height: 30, alignment: .center)
                         .border(Color.black, width: 1)
                 }
