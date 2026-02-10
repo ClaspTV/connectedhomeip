@@ -165,7 +165,7 @@ class MCConnectionExampleViewModel: ObservableObject {
             )
         }
 
-        identificationDeclarationOptions.addTargetAppInfo(targetAppInfo)
+        // identificationDeclarationOptions.addTargetAppInfo(targetAppInfo)
         self.Log.info("MCConnectionExampleViewModel.connect() MCIdentificationDeclarationOptions description: \n\(identificationDeclarationOptions.description)")
 
         self.Log.info("MCConnectionExampleViewModel.connect() calling MCCastingPlayer.verifyOrEstablishConnection()")
