@@ -53,7 +53,7 @@ struct MCConnectionExampleView: View {
                 if(connectionSuccess)
                 {
                     NavigationLink(
-                        destination: MCActionSelectorView(_selectedCastingPlayer: self.selectedCastingPlayer), 
+                        destination: MCActionSelectorView(_selectedCastingPlayer: self.selectedCastingPlayer, _useCommissionerGeneratedPasscode: self.useCommissionerGeneratedPasscode),
                         label: {
                             Text("Next")
                                 .frame(width: 100, height: 30, alignment: .center)

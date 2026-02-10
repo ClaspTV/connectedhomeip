@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AA000001AABBCCDD00112233 /* MCAppLauncherExampleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000003AABBCCDD00112233 /* MCAppLauncherExampleView.swift */; };
+		AA000002AABBCCDD00112233 /* MCAppLauncherExampleViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000004AABBCCDD00112233 /* MCAppLauncherExampleViewModel.swift */; };
 		39231BEA2C24F90200ADFB3A /* MCEndpointSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39231BE92C24F90200ADFB3A /* MCEndpointSelector.swift */; };
 		3C40586E2B632DC500C7C6D6 /* MCMediaPlaybackSubscribeToCurrentStateExampleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C40586D2B632DC500C7C6D6 /* MCMediaPlaybackSubscribeToCurrentStateExampleView.swift */; };
 		3C4058702B632DDB00C7C6D6 /* MCMediaPlaybackSubscribeToCurrentStateExampleViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C40586F2B632DDB00C7C6D6 /* MCMediaPlaybackSubscribeToCurrentStateExampleViewModel.swift */; };
@@ -55,6 +57,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		AA000003AABBCCDD00112233 /* MCAppLauncherExampleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCAppLauncherExampleView.swift; sourceTree = "<group>"; };
+		AA000004AABBCCDD00112233 /* MCAppLauncherExampleViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCAppLauncherExampleViewModel.swift; sourceTree = "<group>"; };
 		39231BE92C24F90200ADFB3A /* MCEndpointSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCEndpointSelector.swift; sourceTree = "<group>"; };
 		3C40586D2B632DC500C7C6D6 /* MCMediaPlaybackSubscribeToCurrentStateExampleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCMediaPlaybackSubscribeToCurrentStateExampleView.swift; sourceTree = "<group>"; };
 		3C40586F2B632DDB00C7C6D6 /* MCMediaPlaybackSubscribeToCurrentStateExampleViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCMediaPlaybackSubscribeToCurrentStateExampleViewModel.swift; sourceTree = "<group>"; };
@@ -168,6 +172,8 @@
 				3C621CB22B6078B7005CDBA3 /* MCApplicationBasicReadVendorIDExampleViewModel.swift */,
 				3C40586D2B632DC500C7C6D6 /* MCMediaPlaybackSubscribeToCurrentStateExampleView.swift */,
 				3C40586F2B632DDB00C7C6D6 /* MCMediaPlaybackSubscribeToCurrentStateExampleViewModel.swift */,
+				AA000003AABBCCDD00112233 /* MCAppLauncherExampleView.swift */,
+				AA000004AABBCCDD00112233 /* MCAppLauncherExampleViewModel.swift */,
 				3CC0E8FF2841DD3500EC6A18 /* Preview Content */,
 			);
 			path = TvCasting;
@@ -293,6 +299,8 @@
 				3CC0E8FA2841DD3400EC6A18 /* TvCastingApp.swift in Sources */,
 				3C40586E2B632DC500C7C6D6 /* MCMediaPlaybackSubscribeToCurrentStateExampleView.swift in Sources */,
 				3C9437902B3B3FF90096E5F4 /* MCConnectionExampleView.swift in Sources */,
+				AA000001AABBCCDD00112233 /* MCAppLauncherExampleView.swift in Sources */,
+				AA000002AABBCCDD00112233 /* MCAppLauncherExampleViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
