@@ -31,6 +31,9 @@ class MCAppLauncherExampleViewModel: ObservableObject {
 
     // MARK: - Launch App
 
+    // 0x7e (126) = UNSUPPORTED_ACCESS error
+    let kErrorUnsupportedAccess: Int = 0x7e
+
     func launchApp(castingPlayer: MCCastingPlayer, useCommissionerGeneratedPasscode: Bool, vendorId: UInt16, applicationId: String) {
         self.Log.info("MCAppLauncherExampleViewModel.launchApp()")
         castingPlayer.logAllEndpoints()
@@ -67,8 +70,17 @@ class MCAppLauncherExampleViewModel: ObservableObject {
                     self.Log.info("LaunchApp success with \(String(describing: response))")
                     self.launchAppStatus = "LaunchApp success\nStatus: \(String(describing: response?.status)), Data: \(String(describing: response?.data))"
                 } else {
-                    self.Log.error("LaunchApp failure with \(String(describing: err))")
+                    self.Log.error("LaunchApp failure: \(String(describing: err))")
                     self.launchAppStatus = "LaunchApp failure: \(String(describing: err))"
+
+                    // Check for UNSUPPORTED_ACCESS (0x7e)
+                    // and remove fabric to recover
+                    if let nsErr = err as NSError?,
+                       nsErr.code == self.kErrorUnsupportedAccess {
+                        self.Log.error("Error 0x7e: removing fabric to recover")
+                        castingPlayer.removeFabric()
+                        self.launchAppStatus! += "\nRemoved fabric (0x7e). Re-commission."
+                    }
                 }
             }
         }, timedInvokeTimeoutMs: 5000)
