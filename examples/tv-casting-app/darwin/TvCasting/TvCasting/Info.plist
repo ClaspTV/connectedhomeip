@@ -13,6 +13,8 @@
 			</array>
 		</dict>
 	</array>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>This app needs access to the local network to discover and connect to casting players (TVs and media devices) using the Matter protocol.</string>
 	<key>NSBonjourServices</key>
 	<array>
 		<string>_matter._tcp</string>
