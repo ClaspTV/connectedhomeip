@@ -63,6 +63,8 @@
  * The Product ID is assigned by the vendor and SHALL be unique for each product within a Vendor ID.
  */
 #define CHIP_DEVICE_CONFIG_DEVICE_PRODUCT_ID 0x0001
+// This is the product for iOS
+// #define CHIP_DEVICE_CONFIG_DEVICE_PRODUCT_ID 0x0002
 
 #define CHIP_DEVICE_CONFIG_USE_TEST_SETUP_DISCRIMINATOR 0xF00
 
