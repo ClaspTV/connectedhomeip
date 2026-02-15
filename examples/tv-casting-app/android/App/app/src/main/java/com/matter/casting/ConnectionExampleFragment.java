@@ -196,7 +196,14 @@ public class ConnectionExampleFragment extends Fragment {
                               .runOnUiThread(
                                   () -> {
                                     connectionFragmentStatusTextView.setText(
-                                        "Casting Player connection failed due to: " + err + "\n\n");
+                                        "Casting Player connection failed due to: " + err + "," + err.getErrorCode() + "\n\n");
+
+                                    if (err.getErrorCode() == 0x38L) {
+                                        displayPasscodeInputDialog(getActivity());
+                                        Log.d(TAG, "Try with the correct passcode");
+                                        connectionFragmentStatusTextView.setText(
+                                                "Try with the correct passcode\n\n");
+                                    }
                                   });
                         }
                       },
