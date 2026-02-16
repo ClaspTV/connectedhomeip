@@ -51,6 +51,62 @@ xcodebuild archive \
     SKIP_INSTALL=NO \
     BUILD_LIBRARY_FOR_DISTRIBUTION=YES
 
+# Headers that the umbrella header imports via subdirectory paths.
+# Xcode flattens all Public headers into Headers/, losing the directory structure.
+# We recreate it here so that imports like "compat-shim/CastingServerBridge.h" resolve.
+COMPAT_SHIM_HEADERS=(
+    CastingServerBridge.h
+    AppParameters.h
+    CommissioningCallbackHandlers.h
+    ContentApp.h
+    ContentLauncherTypes.h
+    DiscoveredNodeData.h
+    MediaPlaybackTypes.h
+    OnboardingPayload.h
+    TargetNavigatorTypes.h
+    VideoPlayer.h
+    DeviceAttestationCredentialsHolder.h
+    CastingPlayerDiscoveryListenerCompat.h
+    DataSourceCompat.h
+)
+ZAP_GENERATED_HEADERS=(
+    MCAttributeObjects.h
+    MCClusterObjects.h
+    MCCommandObjects.h
+    MCCommandPayloads.h
+    MCEndpointClusterType.h
+    MCInteractionModelStructs.h
+)
+
+fix_header_structure() {
+    local FRAMEWORK_HEADERS="$1"
+    echo "Fixing header directory structure in: ${FRAMEWORK_HEADERS}"
+
+    # Create subdirectories
+    mkdir -p "${FRAMEWORK_HEADERS}/compat-shim"
+    mkdir -p "${FRAMEWORK_HEADERS}/zap-generated"
+
+    # Move compat-shim headers (copy + remove to act as move, safe if file missing)
+    for h in "${COMPAT_SHIM_HEADERS[@]}"; do
+        if [ -f "${FRAMEWORK_HEADERS}/${h}" ]; then
+            cp "${FRAMEWORK_HEADERS}/${h}" "${FRAMEWORK_HEADERS}/compat-shim/${h}"
+            rm "${FRAMEWORK_HEADERS}/${h}"
+        fi
+    done
+
+    # Move zap-generated headers
+    for h in "${ZAP_GENERATED_HEADERS[@]}"; do
+        if [ -f "${FRAMEWORK_HEADERS}/${h}" ]; then
+            cp "${FRAMEWORK_HEADERS}/${h}" "${FRAMEWORK_HEADERS}/zap-generated/${h}"
+            rm "${FRAMEWORK_HEADERS}/${h}"
+        fi
+    done
+}
+
+echo "Fixing header structure in archives..."
+fix_header_structure "${IPHONE_OS_DIR}.xcarchive/Products/Library/Frameworks/${PROJECT_NAME}.framework/Headers"
+fix_header_structure "${IPHONE_SIM_DIR}.xcarchive/Products/Library/Frameworks/${PROJECT_NAME}.framework/Headers"
+
 echo "Creating XCFramework..."
 xcodebuild -create-xcframework \
     -framework "${IPHONE_OS_DIR}.xcarchive/Products/Library/Frameworks/${PROJECT_NAME}.framework" \
