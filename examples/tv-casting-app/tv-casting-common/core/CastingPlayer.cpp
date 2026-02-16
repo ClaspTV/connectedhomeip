@@ -231,6 +231,7 @@ void CastingPlayer::VerifyOrEstablishConnection(ConnectionCallbacks connectionCa
                                          "CastingPlayer::VerifyOrEstablishConnection() FindOrEstablishSession Connection to "
                                          "CastingPlayer failed");
                             CastingPlayer * targetCastingPlayer = CastingPlayer::GetTargetCastingPlayer();
+
                             VerifyOrReturn(
                                 targetCastingPlayer != nullptr,
                                 ChipLogError(AppServer,

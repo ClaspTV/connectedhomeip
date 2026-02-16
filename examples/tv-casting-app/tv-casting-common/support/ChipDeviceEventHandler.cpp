@@ -105,8 +105,16 @@ void ChipDeviceEventHandler::Handle(const chip::DeviceLayer::ChipDeviceEvent * e
                     targetCastingPlayer != nullptr,
                     ChipLogError(AppServer,
                                  "ChipDeviceEventHandler::Handle() Target CastingPlayer no longer exists, skipping cleanup"));
-
+                
                 targetCastingPlayer->mConnectionState = CASTING_PLAYER_NOT_CONNECTED;
+
+                // todo-vizbee: check if this is required or not. The latest v1.4.2-branch does not have this, but the PR shared with Vizbee for NPE fix has it.
+                CHIP_ERROR err = support::CastingStore::GetInstance()->Delete(*targetCastingPlayer);
+                if (err != CHIP_NO_ERROR)
+                {
+                    ChipLogError(AppServer, "CastingStore::Delete() failed. Err: %" CHIP_ERROR_FORMAT, err.Format());
+                }
+
                 if (targetCastingPlayer->mOnCompleted)
                 {
                     targetCastingPlayer->mOnCompleted(error, nullptr);
