@@ -208,9 +208,9 @@ public class DiscoveryExampleFragment extends Fragment {
     if (err.hasError()) {
       Log.e(TAG, "onResume() removeCastingPlayerChangeListener() err: " + err);
     }
-    if (!startDiscovery()) {
-      Log.e(TAG, "onResume() Warning: startDiscovery() call Failed");
-    }
+//    if (!startDiscovery()) {
+//      Log.e(TAG, "onResume() Warning: startDiscovery() call Failed");
+//    }
   }
 
   @Override
@@ -219,7 +219,7 @@ public class DiscoveryExampleFragment extends Fragment {
     Log.i(TAG, "DiscoveryExampleFragment onPause() called, calling stopDiscovery()");
     // Stop discovery when leaving the fragment, for example, while displaying the
     // ConnectionExampleFragment.
-    stopDiscovery();
+    // stopDiscovery();
   }
 
   /** Interface for notifying the host. */
