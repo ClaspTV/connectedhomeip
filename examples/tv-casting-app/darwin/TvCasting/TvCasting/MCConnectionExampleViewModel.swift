@@ -24,15 +24,22 @@ class MCConnectionExampleViewModel: ObservableObject {
                      category: "MCConnectionExampleViewModel")
 
     var passcodeAlertController: UIAlertController?
-    
+
     // VendorId of the MCEndpoint on the MCCastingPlayer that the MCCastingApp desires to interact with after connection
     let kDesiredEndpointVendorId: UInt16 = 65521;
-    
+
+    private static let kFirstCommissioningCompleteKey = "isFirstCommissioningComplete"
+
     @Published var connectionSuccess: Bool?;
 
     @Published var connectionStatus: String?;
 
     @Published var errorCodeDescription: String?
+
+    private var isFirstCommissioningComplete: Bool {
+        get { UserDefaults.standard.bool(forKey: Self.kFirstCommissioningCompleteKey) }
+        set { UserDefaults.standard.set(newValue, forKey: Self.kFirstCommissioningCompleteKey) }
+    }
 
     func cancelConnectionAttempt(selectedCastingPlayer: MCCastingPlayer?) {
         DispatchQueue.main.async {
@@ -65,6 +72,10 @@ class MCConnectionExampleViewModel: ObservableObject {
             DispatchQueue.main.async {
                 if err == nil {
                     self.connectionSuccess = true
+                    if !self.isFirstCommissioningComplete {
+                        self.Log.info("MCConnectionExampleViewModel connect() First successful commissioning, updating flag")
+                        self.isFirstCommissioningComplete = true
+                    }
                     if useCommissionerGeneratedPasscode {
                         self.connectionStatus = "Successfully connected to Casting Player using the Casting Player/Commissioner-Generated passcode!"
                         self.Log.info("MCConnectionExampleViewModel connect() Successfully connected to Casting Player using the Casting Player/CommissioneR-Generated passcode!")
@@ -74,7 +85,17 @@ class MCConnectionExampleViewModel: ObservableObject {
                     }
                 } else {
                     self.connectionSuccess = false
-                    self.connectionStatus = "Connection to Casting Player failed with: \(String(describing: err))"
+                    let nsErr = err! as NSError
+                    self.connectionStatus = "Connection to Casting Player failed with: \(String(describing: err)), code: \(nsErr.code)"
+
+                    // 0x38 = CHIP_ERROR_INVALID_PASE_PARAMETER: stale PASE session, retry commissioning
+                    if nsErr.code == 0x38 {
+                        self.Log.info("MCConnectionExampleViewModel connect() CHIP_ERROR_INVALID_PASE_PARAMETER (0x38), retrying commissioning")
+                        self.connectionStatus = "Retrying with the correct passcode...\n"
+                        let _ = selectedCastingPlayer?.stopConnecting()
+                        self.connect(selectedCastingPlayer: selectedCastingPlayer, useCommissionerGeneratedPasscode: useCommissionerGeneratedPasscode)
+                        return
+                    }
                 }
             }
         }
@@ -167,6 +188,15 @@ class MCConnectionExampleViewModel: ObservableObject {
 
         // identificationDeclarationOptions.addTargetAppInfo(targetAppInfo)
         self.Log.info("MCConnectionExampleViewModel.connect() MCIdentificationDeclarationOptions description: \n\(identificationDeclarationOptions.description)")
+
+        // Purge cache on first commissioning attempt after install to avoid stale session data
+        if !isFirstCommissioningComplete {
+            self.Log.info("MCConnectionExampleViewModel.connect() First commissioning attempt, purging cache")
+            let clearErr = MCCastingApp.getSharedInstance()?.clearCache()
+            if let clearErr = clearErr {
+                self.Log.error("MCConnectionExampleViewModel.connect() ClearCache failed: \(clearErr)")
+            }
+        }
 
         self.Log.info("MCConnectionExampleViewModel.connect() calling MCCastingPlayer.verifyOrEstablishConnection()")
         let err = selectedCastingPlayer?.verifyOrEstablishConnection(with: connectionCallbacks, identificationDeclarationOptions: identificationDeclarationOptions)
