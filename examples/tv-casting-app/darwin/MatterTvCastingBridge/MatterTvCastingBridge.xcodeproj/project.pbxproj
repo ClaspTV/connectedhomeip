@@ -37,11 +37,6 @@
 		3C2346232B362B9500FA276E /* MCCastingPlayerDiscovery.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C2346222B362B9500FA276E /* MCCastingPlayerDiscovery.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3C2346252B362BBB00FA276E /* MCCastingPlayerDiscovery.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3C2346242B362BBB00FA276E /* MCCastingPlayerDiscovery.mm */; };
 		3C2696FB2B4A5FC50026E771 /* MCEndpointFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C2696FA2B4A5FC50026E771 /* MCEndpointFilter.m */; };
-		3C26AC9329282B8100BA6881 /* DeviceAttestationCredentialsHolder.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C26AC9229282B8100BA6881 /* DeviceAttestationCredentialsHolder.m */; };
-		3C4AE650286A7D4D005B52A4 /* OnboardingPayload.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C4AE64F286A7D4D005B52A4 /* OnboardingPayload.m */; };
-		3C4E53B028E4F28100F293E8 /* MediaPlaybackTypes.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3C4E53AF28E4F28100F293E8 /* MediaPlaybackTypes.mm */; };
-		3C4E53B228E5184C00F293E8 /* TargetNavigatorTypes.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3C4E53B128E5184C00F293E8 /* TargetNavigatorTypes.mm */; };
-		3C4E53B628E5595A00F293E8 /* ContentLauncherTypes.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3C4E53B528E5595A00F293E8 /* ContentLauncherTypes.mm */; };
 		3C4F52102B4E18C800BB8A10 /* MCEndpoint.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C4F520F2B4E18C800BB8A10 /* MCEndpoint.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3C4F52122B4E18ED00BB8A10 /* MCEndpoint.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3C4F52112B4E18ED00BB8A10 /* MCEndpoint.mm */; };
 		3C4F52142B4F31DC00BB8A10 /* MCDeviceTypeStruct.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C4F52132B4F31DC00BB8A10 /* MCDeviceTypeStruct.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -58,23 +53,14 @@
 		3C621CA52B605A6A005CDBA3 /* MCAttribute.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C621CA42B605A6A005CDBA3 /* MCAttribute.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3C621CA92B605C52005CDBA3 /* MCAttribute_Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C621CA82B605C52005CDBA3 /* MCAttribute_Internal.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3C621CAB2B605C6E005CDBA3 /* MCAttribute.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3C621CAA2B605C6E005CDBA3 /* MCAttribute.mm */; };
-		3C66FBFC290327BB00B63FE7 /* AppParameters.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3C66FBFB290327BB00B63FE7 /* AppParameters.mm */; };
 		3C6920462AA1093300D0F613 /* MCDeviceAttestationCredentialsProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C6920452AA1093300D0F613 /* MCDeviceAttestationCredentialsProvider.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3C6920482AA1094000D0F613 /* MCDeviceAttestationCredentialsProvider.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3C6920472AA1094000D0F613 /* MCDeviceAttestationCredentialsProvider.mm */; };
 		3C69204C2AA136BA00D0F613 /* MCCommonCaseDeviceServerInitParamsProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C69204B2AA136BA00D0F613 /* MCCommonCaseDeviceServerInitParamsProvider.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		3C81C74C28F7A777001CB9D1 /* ContentApp.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3C81C74B28F7A777001CB9D1 /* ContentApp.mm */; };
-		3C81C75028F7A7D3001CB9D1 /* VideoPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C81C74F28F7A7D3001CB9D1 /* VideoPlayer.m */; };
 		3C9437922B3B478E0096E5F4 /* MCErrorUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C9437912B3B478E0096E5F4 /* MCErrorUtils.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3C9437942B3B47A10096E5F4 /* MCErrorUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3C9437932B3B47A10096E5F4 /* MCErrorUtils.mm */; };
-		3C996C272BD31FEA0027BD8A /* DataSourceCompat.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3C996C262BD31FEA0027BD8A /* DataSourceCompat.mm */; };
-		3C996C2B2BD6F4960027BD8A /* CastingPlayerDiscoveryListenerCompat.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3C996C2A2BD6F4950027BD8A /* CastingPlayerDiscoveryListenerCompat.mm */; };
 		3CC3979E2BE9857C00465462 /* MCCastingPlayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3C9437882B364F5E0096E5F4 /* MCCastingPlayer.mm */; };
 		3CCB87212869085400771BAD /* MatterTvCastingBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = 3CCB87202869085400771BAD /* MatterTvCastingBridge.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3CCB8737286A555500771BAD /* libTvCastingCommon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3CCB8735286A555500771BAD /* libTvCastingCommon.a */; };
-		3CCB873F286A593700771BAD /* DiscoveredNodeData.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3CCB8739286A593700771BAD /* DiscoveredNodeData.mm */; };
-		3CCB8740286A593700771BAD /* CastingServerBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = 3CCB873A286A593700771BAD /* CastingServerBridge.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		3CCB8741286A593700771BAD /* DiscoveredNodeData.h in Headers */ = {isa = PBXBuildFile; fileRef = 3CCB873B286A593700771BAD /* DiscoveredNodeData.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		3CCB8743286A593700771BAD /* CastingServerBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3CCB873D286A593700771BAD /* CastingServerBridge.mm */; };
 		3CD73F172A9E6884009D82D1 /* MCRotatingDeviceIdUniqueIdProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = 3CD73F162A9E6884009D82D1 /* MCRotatingDeviceIdUniqueIdProvider.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3CD73F192A9E68A7009D82D1 /* MCRotatingDeviceIdUniqueIdProvider.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3CD73F182A9E68A7009D82D1 /* MCRotatingDeviceIdUniqueIdProvider.mm */; };
 		3CD73F1C2A9E8396009D82D1 /* MCCommissionableDataProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = 3CD73F1B2A9E8396009D82D1 /* MCCommissionableDataProvider.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -94,16 +80,6 @@
 		3CF71C122A993298003A5CE5 /* MCCommissionableData.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3CF71C112A993298003A5CE5 /* MCCommissionableData.mm */; };
 		3CF8532728E37F1000F07B9F /* MatterError.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3CF8532628E37F1000F07B9F /* MatterError.mm */; };
 		A4656E79D330371E28B4B2B3 /* MatterError.h in Headers */ = {isa = PBXBuildFile; fileRef = 3CF8532528E37ED800F07B9F /* MatterError.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		1905C1008328A7524B0BB3E6 /* AppParameters.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C66FBFA2903279A00B63FE7 /* AppParameters.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		2B3931FA08457C6836995BDC /* ContentApp.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C81C74E28F7A7AE001CB9D1 /* ContentApp.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		ADDBF79F2503E01739BF78D9 /* ContentLauncherTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C4E53B428E5593700F293E8 /* ContentLauncherTypes.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		F21662232EB3BA526B1D0AB0 /* MediaPlaybackTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 3CA1CA7728E243750023ED44 /* MediaPlaybackTypes.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		0EA548B6F500B16BB10D61DE /* OnboardingPayload.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C4AE64E286A7D40005B52A4 /* OnboardingPayload.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		930F36934597141797F86572 /* TargetNavigatorTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C4E53B328E5185F00F293E8 /* TargetNavigatorTypes.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		D8C09C1906B602227E58A12C /* VideoPlayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C81C75128F7A7DF001CB9D1 /* VideoPlayer.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		D5DBB0143B22A01B2B737A9B /* DeviceAttestationCredentialsHolder.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C26AC91292700AD00BA6881 /* DeviceAttestationCredentialsHolder.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		C258F61765C642F3DD9FF6E1 /* CastingPlayerDiscoveryListenerCompat.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C996C292BD6F4800027BD8A /* CastingPlayerDiscoveryListenerCompat.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		3EA1E26C74EF909735B60A40 /* DataSourceCompat.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C996C252BD31FD60027BD8A /* DataSourceCompat.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -401,7 +377,6 @@
 				3C9437922B3B478E0096E5F4 /* MCErrorUtils.h in Headers */,
 				3C4F52222B507C9300BB8A10 /* MCCluster.h in Headers */,
 				39F589E22C179A09000AAADD /* MCConnectionCallbacks.h in Headers */,
-				3CCB8741286A593700771BAD /* DiscoveredNodeData.h in Headers */,
 				3C0474062B3F7E5F0012AE95 /* MCEndpointFilter.h in Headers */,
 				3CCB87212869085400771BAD /* MatterTvCastingBridge.h in Headers */,
 				3C4F52202B507C4A00BB8A10 /* MCEndpointClusterType.h in Headers */,
@@ -409,16 +384,6 @@
 				39BF57C52B8CFF790081653C /* MCAttributeObjects.h in Headers */,
 				3C04740C2B4604CF0012AE95 /* MCCryptoUtils.h in Headers */,
 				A4656E79D330371E28B4B2B3 /* MatterError.h in Headers */,
-				1905C1008328A7524B0BB3E6 /* AppParameters.h in Headers */,
-				2B3931FA08457C6836995BDC /* ContentApp.h in Headers */,
-				ADDBF79F2503E01739BF78D9 /* ContentLauncherTypes.h in Headers */,
-				F21662232EB3BA526B1D0AB0 /* MediaPlaybackTypes.h in Headers */,
-				0EA548B6F500B16BB10D61DE /* OnboardingPayload.h in Headers */,
-				930F36934597141797F86572 /* TargetNavigatorTypes.h in Headers */,
-				D8C09C1906B602227E58A12C /* VideoPlayer.h in Headers */,
-				D5DBB0143B22A01B2B737A9B /* DeviceAttestationCredentialsHolder.h in Headers */,
-				C258F61765C642F3DD9FF6E1 /* CastingPlayerDiscoveryListenerCompat.h in Headers */,
-				3EA1E26C74EF909735B60A40 /* DataSourceCompat.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -518,8 +483,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3CCB8743286A593700771BAD /* CastingServerBridge.mm in Sources */,
-				3C4E53B228E5184C00F293E8 /* TargetNavigatorTypes.mm in Sources */,
 				3C6920482AA1094000D0F613 /* MCDeviceAttestationCredentialsProvider.mm in Sources */,
 				3CE5ECD02A673E2C007CF331 /* CommissioningCallbackHandlers.m in Sources */,
 				39BF57CF2B8FC1030081653C /* MCClusterObjects.mm in Sources */,
@@ -530,14 +493,11 @@
 				3CF8532728E37F1000F07B9F /* MatterError.mm in Sources */,
 				3C4F522C2B51E02800BB8A10 /* MCCommand.mm in Sources */,
 				395BF6AF2C18EC7C00C73CE2 /* MCTargetAppInfo.mm in Sources */,
-				3C4E53B628E5595A00F293E8 /* ContentLauncherTypes.mm in Sources */,
-				3C81C75028F7A7D3001CB9D1 /* VideoPlayer.m in Sources */,
 				3CF71C0C2A992D25003A5CE5 /* MCCastingApp.mm in Sources */,
 				3CC3979E2BE9857C00465462 /* MCCastingPlayer.mm in Sources */,
 				3C621CAB2B605C6E005CDBA3 /* MCAttribute.mm in Sources */,
 				39F589E42C179A18000AAADD /* MCConnectionCallbacks.mm in Sources */,
 				3C4F52122B4E18ED00BB8A10 /* MCEndpoint.mm in Sources */,
-				3C4E53B028E4F28100F293E8 /* MediaPlaybackTypes.mm in Sources */,
 				3C04740E2B4605B40012AE95 /* MCCryptoUtils.mm in Sources */,
 				3CD73F1E2A9E83C1009D82D1 /* MCCommissionableDataProvider.mm in Sources */,
 				39F589E02C1781E4000AAADD /* MCCommissionerDeclaration.mm in Sources */,
@@ -547,18 +507,11 @@
 				39BF57C72B8CFFB90081653C /* MCAttributeObjects.mm in Sources */,
 				3C2346252B362BBB00FA276E /* MCCastingPlayerDiscovery.mm in Sources */,
 				3C4F52242B507CA800BB8A10 /* MCCluster.mm in Sources */,
-				3C66FBFC290327BB00B63FE7 /* AppParameters.mm in Sources */,
 				3C9437942B3B47A10096E5F4 /* MCErrorUtils.mm in Sources */,
-				3C26AC9329282B8100BA6881 /* DeviceAttestationCredentialsHolder.m in Sources */,
-				3C996C272BD31FEA0027BD8A /* DataSourceCompat.mm in Sources */,
-				3CCB873F286A593700771BAD /* DiscoveredNodeData.mm in Sources */,
 				39D4D2522B97943D00BF3CFE /* MCCommandObjects.mm in Sources */,
 				3C4F52162B4F31FA00BB8A10 /* MCDeviceTypeStruct.m in Sources */,
 				3C2696FB2B4A5FC50026E771 /* MCEndpointFilter.m in Sources */,
-				3C81C74C28F7A777001CB9D1 /* ContentApp.mm in Sources */,
-				3C996C2B2BD6F4960027BD8A /* CastingPlayerDiscoveryListenerCompat.mm in Sources */,
 				3CF71C122A993298003A5CE5 /* MCCommissionableData.mm in Sources */,
-				3C4AE650286A7D4D005B52A4 /* OnboardingPayload.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -33,6 +33,7 @@ import(
 chip_data_model_overrides_dir =
     "${chip_root}/examples/tv-casting-app/tv-casting-common"
 
+optimize_apk_size = true
 if (optimize_apk_size) {
   # Size-optimized build: smaller framework, fewer debug features.
   # Excludes legacy chip-tool command sources and their transitive deps
