@@ -53,22 +53,7 @@ xcodebuild archive \
 
 # Headers that the umbrella header imports via subdirectory paths.
 # Xcode flattens all Public headers into Headers/, losing the directory structure.
-# We recreate it here so that imports like "compat-shim/CastingServerBridge.h" resolve.
-COMPAT_SHIM_HEADERS=(
-    CastingServerBridge.h
-    AppParameters.h
-    CommissioningCallbackHandlers.h
-    ContentApp.h
-    ContentLauncherTypes.h
-    DiscoveredNodeData.h
-    MediaPlaybackTypes.h
-    OnboardingPayload.h
-    TargetNavigatorTypes.h
-    VideoPlayer.h
-    DeviceAttestationCredentialsHolder.h
-    CastingPlayerDiscoveryListenerCompat.h
-    DataSourceCompat.h
-)
+# We recreate the zap-generated subdirectory so those imports still resolve.
 ZAP_GENERATED_HEADERS=(
     MCAttributeObjects.h
     MCClusterObjects.h
@@ -83,16 +68,7 @@ fix_header_structure() {
     echo "Fixing header directory structure in: ${FRAMEWORK_HEADERS}"
 
     # Create subdirectories
-    mkdir -p "${FRAMEWORK_HEADERS}/compat-shim"
     mkdir -p "${FRAMEWORK_HEADERS}/zap-generated"
-
-    # Move compat-shim headers (copy + remove to act as move, safe if file missing)
-    for h in "${COMPAT_SHIM_HEADERS[@]}"; do
-        if [ -f "${FRAMEWORK_HEADERS}/${h}" ]; then
-            cp "${FRAMEWORK_HEADERS}/${h}" "${FRAMEWORK_HEADERS}/compat-shim/${h}"
-            rm "${FRAMEWORK_HEADERS}/${h}"
-        fi
-    done
 
     # Move zap-generated headers
     for h in "${ZAP_GENERATED_HEADERS[@]}"; do
