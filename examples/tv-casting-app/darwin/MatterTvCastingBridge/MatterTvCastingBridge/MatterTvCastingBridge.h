@@ -23,8 +23,6 @@ FOUNDATION_EXPORT double MatterTvCastingBridgeVersionNumber;
 //! Project version string for MatterTvCastingBridge.
 FOUNDATION_EXPORT const unsigned char MatterTvCastingBridgeVersionString[];
 
-#import "compat-shim/CastingServerBridge.h"
-
 // Add simplified casting API headers here
 #import "MCAttribute.h"
 #import "MCCastingApp.h"
