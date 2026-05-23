@@ -24,4 +24,10 @@ public interface ServiceBrowser {
       final long callbackHandle,
       final long contextHandle,
       final ChipMdnsCallback chipMdnsCallback);
+
+  public void browseContinuous(
+      final String serviceType,
+      final long callbackHandle,
+      final long contextHandle,
+      final ChipMdnsCallback chipMdnsCallback);
 }

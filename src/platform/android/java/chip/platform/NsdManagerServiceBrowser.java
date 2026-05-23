@@ -24,10 +24,10 @@ import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.MulticastLock;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.MessageQueue;
 import android.util.Log;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 public class NsdManagerServiceBrowser implements ServiceBrowser {
   private static final String TAG = NsdManagerServiceBrowser.class.getSimpleName();
@@ -65,45 +65,61 @@ public class NsdManagerServiceBrowser implements ServiceBrowser {
       final long callbackHandle,
       final long contextHandle,
       final ChipMdnsCallback chipMdnsCallback) {
-    Runnable timeoutRunnable =
-        new Runnable() {
-          @Override
-          public void run() {
-            Log.i(
-                TAG,
-                "Browse for service '"
-                    + serviceType
-                    + "' expired after timeout: "
-                    + timeout
-                    + " ms");
-            stopDiscover(callbackHandle);
-          }
-        };
-    startDiscover(serviceType, callbackHandle, contextHandle, chipMdnsCallback);
-    mainThreadHandler.postDelayed(timeoutRunnable, timeout);
+    startDiscover(serviceType, callbackHandle, contextHandle, chipMdnsCallback, false);
+  }
+
+  @Override
+  public void browseContinuous(
+      final String serviceType,
+      final long callbackHandle,
+      final long contextHandle,
+      final ChipMdnsCallback chipMdnsCallback) {
+    startDiscover(serviceType, callbackHandle, contextHandle, chipMdnsCallback, true);
   }
 
   public void startDiscover(
       final String serviceType,
       final long callbackHandle,
       final long contextHandle,
-      final ChipMdnsCallback chipMdnsCallback) {
+      final ChipMdnsCallback chipMdnsCallback,
+      final boolean continuous) {
     if (callbackMap.containsKey(callbackHandle)) {
       Log.w(TAG, "Starting service discovery failed. Invalid callbackHandle: " + callbackHandle);
       return;
     }
 
     NsdManagerDiscovery discovery =
-        new NsdManagerDiscovery(serviceType, callbackHandle, contextHandle);
+        new NsdManagerDiscovery(serviceType, callbackHandle, contextHandle, continuous);
     multicastLock.acquire();
     discovery.setChipMdnsCallback(chipMdnsCallback);
+
+    if (!continuous) {
+      Runnable timeoutRunnable =
+          new Runnable() {
+            @Override
+            public void run() {
+              Log.i(
+                  TAG,
+                  "Browse for service '"
+                      + serviceType
+                      + "' expired after timeout: "
+                      + timeout
+                      + " ms");
+              stopDiscover(callbackHandle);
+            }
+          };
+      discovery.setTimeoutRunnable(timeoutRunnable);
+      mainThreadHandler.postDelayed(timeoutRunnable, timeout);
+    }
 
     Log.d(
         TAG,
         "Starting service discovery for '"
             + serviceType
             + "' with callbackHandle: "
-            + callbackHandle);
+            + callbackHandle
+            + ", continuous: "
+            + continuous);
 
     this.nsdManager.discoverServices(serviceType, NsdManager.PROTOCOL_DNS_SD, discovery);
     callbackMap.put(callbackHandle, discovery);
@@ -121,10 +137,9 @@ public class NsdManagerServiceBrowser implements ServiceBrowser {
       multicastLock.release();
     }
 
-    MessageQueue queue = mainThreadHandler.getLooper().getQueue();
-    if (!queue.isIdle()) {
+    if (discovery.timeoutRunnable != null) {
       Log.d(TAG, "Canceling scheduled browse timeout runnable for '" + discovery.serviceType + "'");
-      mainThreadHandler.removeCallbacksAndMessages(null);
+      mainThreadHandler.removeCallbacks(discovery.timeoutRunnable);
     }
 
     try {
@@ -138,18 +153,23 @@ public class NsdManagerServiceBrowser implements ServiceBrowser {
     private String serviceType;
     private long callbackHandle;
     private long contextHandle;
-    private ArrayList<String> serviceNameList = new ArrayList<>();
+    private final boolean continuous;
+    private final Set<String> serviceNames = new LinkedHashSet<>();
     private ChipMdnsCallback chipMdnsCallback;
+    private Runnable timeoutRunnable;
 
-    public NsdManagerDiscovery(String serviceType, long callbackHandle, long contextHandle) {
+    public NsdManagerDiscovery(
+        String serviceType, long callbackHandle, long contextHandle, boolean continuous) {
       this.serviceType = serviceType;
       this.callbackHandle = callbackHandle;
       this.contextHandle = contextHandle;
+      this.continuous = continuous;
     }
 
     @Override
     public void onStartDiscoveryFailed(String serviceType, int errorCode) {
       Log.w(TAG, "Failed to start discovery service '" + serviceType + "': " + errorCode);
+      handleBrowseStop(errorCode);
     }
 
     @Override
@@ -160,7 +180,11 @@ public class NsdManagerServiceBrowser implements ServiceBrowser {
     @Override
     public void onServiceFound(NsdServiceInfo serviceInfo) {
       Log.i(TAG, "Found service '" + serviceInfo.getServiceName() + "'");
-      serviceNameList.add(serviceInfo.getServiceName());
+      boolean isNewService = serviceNames.add(serviceInfo.getServiceName());
+      if (continuous && isNewService) {
+        chipMdnsCallback.handleServiceBrowseAdd(
+            serviceInfo.getServiceName(), serviceType, callbackHandle, contextHandle);
+      }
     }
 
     @Override
@@ -168,13 +192,22 @@ public class NsdManagerServiceBrowser implements ServiceBrowser {
       Log.i(
           TAG,
           "Lost service '" + (serviceInfo != null ? serviceInfo.getServiceName() : "null") + "'");
-      boolean ret = serviceNameList.remove(serviceInfo.getServiceName());
-      Log.i(TAG, "Remove List: " + ret);
+      if (serviceInfo == null) {
+        return;
+      }
+
+      boolean removed = serviceNames.remove(serviceInfo.getServiceName());
+      Log.i(TAG, "Remove List: " + removed);
+      if (continuous && removed) {
+        chipMdnsCallback.handleServiceBrowseRemove(
+            serviceInfo.getServiceName(), serviceType, callbackHandle, contextHandle);
+      }
     }
 
     @Override
     public void onStopDiscoveryFailed(String serviceType, int errorCode) {
       Log.w(TAG, "Failed to stop discovery service '" + serviceType + "': " + errorCode);
+      handleBrowseStop(errorCode);
     }
 
     @Override
@@ -183,20 +216,34 @@ public class NsdManagerServiceBrowser implements ServiceBrowser {
       new Handler(Looper.getMainLooper())
           .post(
               () -> {
-                this.handleServiceBrowse(chipMdnsCallback);
+                if (continuous) {
+                  this.handleBrowseStop(0);
+                } else {
+                  this.handleServiceBrowse(chipMdnsCallback);
+                }
               });
     }
 
     public void handleServiceBrowse(ChipMdnsCallback chipMdnsCallback) {
       chipMdnsCallback.handleServiceBrowse(
-          serviceNameList.toArray(new String[serviceNameList.size()]),
+          serviceNames.toArray(new String[serviceNames.size()]),
           serviceType,
           callbackHandle,
           contextHandle);
     }
 
+    public void handleBrowseStop(int errorCode) {
+      if (chipMdnsCallback != null) {
+        chipMdnsCallback.handleServiceBrowseStop(callbackHandle, contextHandle, errorCode);
+      }
+    }
+
     public void setChipMdnsCallback(final ChipMdnsCallback chipMdnsCallback) {
       this.chipMdnsCallback = chipMdnsCallback;
+    }
+
+    public void setTimeoutRunnable(final Runnable timeoutRunnable) {
+      this.timeoutRunnable = timeoutRunnable;
     }
   }
 }

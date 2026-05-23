@@ -30,6 +30,7 @@ class DLL_EXPORT DeviceDiscoveryDelegate
 public:
     virtual ~DeviceDiscoveryDelegate() {}
     virtual void OnDiscoveredDevice(const chip::Dnssd::CommissionNodeData & nodeData) = 0;
+    virtual void OnRemovedDevice(const chip::Dnssd::CommissionNodeData & nodeData) {}
 };
 
 } // namespace Controller

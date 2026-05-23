@@ -29,6 +29,21 @@ import java.util.List;
  */
 public interface CastingPlayerDiscovery {
 
+  enum DiscoveryMode {
+    SNAPSHOT(0),
+    CONTINUOUS(1);
+
+    private final int code;
+
+    DiscoveryMode(int code) {
+      this.code = code;
+    }
+
+    int getCode() {
+      return code;
+    }
+  }
+
   /**
    * @return a list of Casting Players discovered during the current discovery session. This list is
    *     cleared when discovery stops.
@@ -44,6 +59,10 @@ public interface CastingPlayerDiscovery {
    * @return a specific MatterError if the the operation failed or NO_ERROR if succeeded.
    */
   MatterError startDiscovery(Long discoveryTargetDeviceType);
+
+  default MatterError startDiscovery(Long discoveryTargetDeviceType, DiscoveryMode discoveryMode) {
+    return startDiscovery(discoveryTargetDeviceType);
+  }
 
   /**
    * Stops Casting Players discovery or returns an error.

@@ -28,7 +28,7 @@
 namespace chip {
 namespace Controller {
 
-CHIP_ERROR CommissionableNodeController::DiscoverCommissioners(Dnssd::DiscoveryFilter discoveryFilter)
+CHIP_ERROR CommissionableNodeController::DiscoverCommissioners(Dnssd::DiscoveryFilter discoveryFilter, Dnssd::DiscoveryMode mode)
 {
     ReturnErrorOnFailure(SetUpNodeDiscovery());
 
@@ -37,7 +37,7 @@ CHIP_ERROR CommissionableNodeController::DiscoverCommissioners(Dnssd::DiscoveryF
     ReturnErrorOnFailure(mDNSResolver.Init(DeviceLayer::UDPEndPointManager()));
 #endif
     mDNSResolver.SetDiscoveryDelegate(this);
-    return mDNSResolver.DiscoverCommissioners(discoveryFilter);
+    return mDNSResolver.DiscoverCommissioners(discoveryFilter, mode);
 }
 
 CommissionableNodeController::~CommissionableNodeController()

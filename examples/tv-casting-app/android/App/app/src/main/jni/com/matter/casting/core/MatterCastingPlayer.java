@@ -30,7 +30,7 @@ import java.util.Objects;
  * local network using Matter Commissioner discovery over DNS. It contains all the information about
  * the service discovered/resolved.
  */
-public class MatterCastingPlayer implements CastingPlayer {
+public class MatterCastingPlayer implements CastingPlayer, AutoCloseable {
   private static final String TAG = MatterCastingPlayer.class.getSimpleName();
 
   /**
@@ -144,6 +144,22 @@ public class MatterCastingPlayer implements CastingPlayer {
 
   @Override
   public native List<Endpoint> getEndpoints();
+
+  private native void releaseNative();
+
+  @Override
+  public void close() {
+    releaseNative();
+  }
+
+  @Override
+  protected void finalize() throws Throwable {
+    try {
+      releaseNative();
+    } finally {
+      super.finalize();
+    }
+  }
 
   @Override
   public String toString() {

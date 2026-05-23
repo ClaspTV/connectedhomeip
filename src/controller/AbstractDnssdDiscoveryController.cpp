@@ -52,6 +52,19 @@ static bool SameExceptOrder(const chip::Span<const Inet::IPAddress> & v1, const 
     return addressUsed.count() == v2.size();
 }
 
+static bool SameNodeIdentity(const chip::Dnssd::CommissionNodeData & existingNode, const chip::Dnssd::CommissionNodeData & nodeData)
+{
+    if (existingNode.instanceName[0] != '\0' && nodeData.instanceName[0] != '\0')
+    {
+        return strcmp(existingNode.instanceName, nodeData.instanceName) == 0;
+    }
+
+    chip::Span<const Inet::IPAddress> existingNodeIPAddressSpan(&existingNode.ipAddress[0], existingNode.numIPs);
+    chip::Span<const Inet::IPAddress> nodeDataIPAddressSpan(&nodeData.ipAddress[0], nodeData.numIPs);
+    return strcmp(existingNode.hostName, nodeData.hostName) == 0 && existingNode.port == nodeData.port &&
+        SameExceptOrder(existingNodeIPAddressSpan, nodeDataIPAddressSpan);
+}
+
 void AbstractDnssdDiscoveryController::OnNodeDiscovered(const chip::Dnssd::DiscoveredNodeData & discNodeData)
 {
     VerifyOrReturn(discNodeData.Is<chip::Dnssd::CommissionNodeData>());
@@ -65,10 +78,7 @@ void AbstractDnssdDiscoveryController::OnNodeDiscovered(const chip::Dnssd::Disco
         {
             continue;
         }
-        chip::Span<const Inet::IPAddress> discoveredNodeIPAddressSpan(&discoveredNode.ipAddress[0], discoveredNode.numIPs);
-        chip::Span<const Inet::IPAddress> nodeDataIPAddressSpan(&nodeData.ipAddress[0], nodeData.numIPs);
-        if (strcmp(discoveredNode.hostName, nodeData.hostName) == 0 && discoveredNode.port == nodeData.port &&
-            SameExceptOrder(discoveredNodeIPAddressSpan, nodeDataIPAddressSpan))
+        if (SameNodeIdentity(discoveredNode, nodeData))
         {
             discoveredNode = nodeData;
             if (mDeviceDiscoveryDelegate != nullptr)
@@ -92,6 +102,33 @@ void AbstractDnssdDiscoveryController::OnNodeDiscovered(const chip::Dnssd::Disco
         }
     }
     ChipLogError(Discovery, "Failed to add discovered node with hostname %s- Insufficient space", nodeData.hostName);
+}
+
+void AbstractDnssdDiscoveryController::OnNodeRemoved(const chip::Dnssd::DiscoveredNodeData & discNodeData)
+{
+    VerifyOrReturn(discNodeData.Is<chip::Dnssd::CommissionNodeData>());
+
+    auto discoveredNodes = GetDiscoveredNodes();
+    auto & nodeData      = discNodeData.Get<chip::Dnssd::CommissionNodeData>();
+
+    for (auto & discoveredNode : discoveredNodes)
+    {
+        if (!discoveredNode.IsValid())
+        {
+            continue;
+        }
+
+        if (SameNodeIdentity(discoveredNode, nodeData))
+        {
+            chip::Dnssd::CommissionNodeData removedNode = discoveredNode;
+            discoveredNode.Reset();
+            if (mDeviceDiscoveryDelegate != nullptr)
+            {
+                mDeviceDiscoveryDelegate->OnRemovedDevice(removedNode);
+            }
+            return;
+        }
+    }
 }
 
 CHIP_ERROR AbstractDnssdDiscoveryController::SetUpNodeDiscovery()

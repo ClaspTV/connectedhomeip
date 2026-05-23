@@ -37,6 +37,7 @@ void CastingPlayer::SendUDC(ConnectionCallbacks connectionCallbacks, Identificat
 
     VerifyOrExit(connectionCallbacks.mOnConnectionComplete != nullptr,
                  ChipLogError(AppServer, "CastingPlayer::SendUDC() ConnectionCallbacks.mOnConnectionComplete was not provided"));
+    VerifyOrExit(mIsActive, err = CHIP_ERROR_INCORRECT_STATE);
 
     mOnCompleted         = connectionCallbacks.mOnConnectionComplete;
     mTargetCastingPlayer = weak_from_this();
@@ -80,6 +81,7 @@ void CastingPlayer::VerifyOrEstablishConnection(ConnectionCallbacks connectionCa
 
     CHIP_ERROR err = CHIP_NO_ERROR;
 
+    VerifyOrExit(mIsActive, err = CHIP_ERROR_INCORRECT_STATE);
     // ensure the app was not already in the process of connecting to this CastingPlayer
     err = (mConnectionState != CASTING_PLAYER_CONNECTING ? CHIP_NO_ERROR : CHIP_ERROR_INCORRECT_STATE);
     VerifyOrExit(
@@ -296,6 +298,8 @@ exit:
 CHIP_ERROR CastingPlayer::ContinueConnecting()
 {
     ChipLogProgress(AppServer, "CastingPlayer::ContinueConnecting()");
+    VerifyOrReturnValue(mIsActive, CHIP_ERROR_INCORRECT_STATE,
+                        ChipLogError(AppServer, "CastingPlayer::ContinueConnecting() called on inactive CastingPlayer"););
     VerifyOrReturnValue(mOnCompleted != nullptr, CHIP_ERROR_INVALID_ARGUMENT,
                         ChipLogError(AppServer, "CastingPlayer::ContinueConnecting() mOnCompleted == nullptr"););
     VerifyOrReturnValue(mConnectionState == CASTING_PLAYER_CONNECTING, CHIP_ERROR_INCORRECT_STATE,
@@ -342,6 +346,8 @@ CHIP_ERROR CastingPlayer::StopConnecting(bool shouldSendIdentificationDeclaratio
 {
     ChipLogProgress(AppServer, "CastingPlayer::StopConnecting() called, while ChipDeviceEventHandler.sUdcInProgress: %s",
                     support::ChipDeviceEventHandler::isUdcInProgress() ? "true" : "false");
+    VerifyOrReturnValue(mIsActive, CHIP_ERROR_INCORRECT_STATE,
+                        ChipLogError(AppServer, "CastingPlayer::StopConnecting() called on inactive CastingPlayer"));
     CHIP_ERROR err       = CHIP_NO_ERROR;
     mTargetCastingPlayer = weak_from_this();
     mIdOptions.LogDetail();
@@ -424,6 +430,7 @@ void CastingPlayer::resetState(CHIP_ERROR err)
 void CastingPlayer::Disconnect()
 {
     ChipLogProgress(AppServer, "CastingPlayer::Disconnect()");
+    VerifyOrReturn(mIsActive, ChipLogError(AppServer, "CastingPlayer::Disconnect() called on inactive CastingPlayer"));
     mConnectionState = CASTING_PLAYER_NOT_CONNECTED;
 
     // Unregister from CommissioningWindowManager when unsetting mTargetCastingPlayer
@@ -436,6 +443,7 @@ void CastingPlayer::Disconnect()
 void CastingPlayer::RemoveFabric()
 {
     ChipLogProgress(AppServer, "CastingPlayer::RemoveFabric()");
+    VerifyOrReturn(mIsActive, ChipLogError(AppServer, "CastingPlayer::RemoveFabric() called on inactive CastingPlayer"));
     chip::Server::GetInstance().GetFabricTable().Delete(mAttributes.fabricIndex);
     mAttributes.fabricIndex = 0;
     mAttributes.nodeId      = 0;
@@ -464,6 +472,23 @@ void CastingPlayer::RegisterEndpoint(const memory::Strong<Endpoint> endpoint)
     else
     {
         mEndpoints.push_back(endpoint);
+    }
+}
+
+void CastingPlayer::UpdateFromAttributes(const CastingPlayerAttributes & playerAttributes)
+{
+    const chip::NodeId existingNodeId           = mAttributes.nodeId;
+    const chip::FabricIndex existingFabricIndex = mAttributes.fabricIndex;
+    char existingId[kIdMaxLength + 1]           = {};
+
+    chip::Platform::CopyString(existingId, sizeof(existingId), mAttributes.id);
+    mAttributes = playerAttributes;
+    mAttributes.nodeId = existingNodeId;
+    mAttributes.fabricIndex = existingFabricIndex;
+
+    if (strlen(existingId) != 0)
+    {
+        chip::Platform::CopyString(mAttributes.id, sizeof(mAttributes.id), existingId);
     }
 }
 
@@ -611,9 +636,9 @@ void CastingPlayer::LogDetail() const
 }
 
 CastingPlayer::CastingPlayer(const CastingPlayer & other) :
-    std::enable_shared_from_this<CastingPlayer>(other), mConnectionState(other.mConnectionState), mAttributes(other.mAttributes),
-    mIdOptions(other.mIdOptions), mCommissioningWindowTimeoutSec(other.mCommissioningWindowTimeoutSec),
-    mOnCompleted(other.mOnCompleted)
+    std::enable_shared_from_this<CastingPlayer>(other), mConnectionState(other.mConnectionState), mIsActive(other.mIsActive),
+    mAttributes(other.mAttributes), mIdOptions(other.mIdOptions),
+    mCommissioningWindowTimeoutSec(other.mCommissioningWindowTimeoutSec), mOnCompleted(other.mOnCompleted)
 {
     ChipLogProgress(AppServer, "CastingPlayer::CastingPlayer(copy) deep-copying %u endpoint(s) from other=%p to this=%p",
                     static_cast<unsigned int>(other.mEndpoints.size()), static_cast<const void *>(&other),
@@ -645,6 +670,7 @@ CastingPlayer & CastingPlayer::operator=(const CastingPlayer & other)
     {
         mAttributes                    = other.mAttributes;
         mConnectionState               = other.mConnectionState;
+        mIsActive                      = other.mIsActive;
         mIdOptions                     = other.mIdOptions;
         mCommissioningWindowTimeoutSec = other.mCommissioningWindowTimeoutSec;
         mOnCompleted                   = other.mOnCompleted;

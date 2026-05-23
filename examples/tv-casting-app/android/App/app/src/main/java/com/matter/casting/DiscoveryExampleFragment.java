@@ -247,8 +247,10 @@ public class DiscoveryExampleFragment extends Fragment {
       return false;
     }
     // Start discovery
-    Log.i(TAG, "startDiscovery() calling CastingPlayerDiscovery.startDiscovery()");
-    err = matterCastingPlayerDiscovery.startDiscovery(DISCOVERY_TARGET_DEVICE_TYPE);
+    Log.i(TAG, "startDiscovery() calling CastingPlayerDiscovery.startDiscovery() in continuous mode");
+    err =
+        matterCastingPlayerDiscovery.startDiscovery(
+            DISCOVERY_TARGET_DEVICE_TYPE, CastingPlayerDiscovery.DiscoveryMode.CONTINUOUS);
     if (err.hasError()) {
       Log.e(TAG, "startDiscovery() startDiscovery() called, err Start: " + err);
       matterDiscoveryErrorMessageTextView.setText(

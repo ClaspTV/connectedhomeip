@@ -55,6 +55,14 @@ public final class MatterCastingPlayerDiscovery implements CastingPlayerDiscover
   @Override
   public native MatterError startDiscovery(Long discoveryTargetDeviceType);
 
+  @Override
+  public MatterError startDiscovery(Long discoveryTargetDeviceType, DiscoveryMode discoveryMode) {
+    return startDiscoveryWithMode(discoveryTargetDeviceType, discoveryMode.getCode());
+  }
+
+  private native MatterError startDiscoveryWithMode(
+      Long discoveryTargetDeviceType, int discoveryModeCode);
+
   /**
    * Stops Casting Players discovery or returns an error.
    *

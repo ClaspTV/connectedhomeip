@@ -44,6 +44,7 @@ JniGlobalReference sBrowserObject;
 JniGlobalReference sMdnsCallbackObject;
 jmethodID sResolveMethod          = nullptr;
 jmethodID sBrowseMethod           = nullptr;
+jmethodID sBrowseContinuousMethod = nullptr;
 jmethodID sStopBrowseMethod       = nullptr;
 jmethodID sGetTextEntryKeysMethod = nullptr;
 jmethodID sGetTextEntryDataMethod = nullptr;
@@ -240,6 +241,55 @@ CHIP_ERROR ChipDnssdStopBrowse(intptr_t browseIdentifier)
     return CHIP_NO_ERROR;
 }
 
+CHIP_ERROR ChipDnssdBrowse(const char * type, DnssdServiceProtocol protocol, Inet::IPAddressType addressType,
+                           Inet::InterfaceId interface, DnssdBrowseDelegate * delegate)
+{
+    VerifyOrReturnError(type != nullptr && delegate != nullptr, CHIP_ERROR_INVALID_ARGUMENT);
+    VerifyOrReturnError(sBrowserObject.HasValidObjectRef() && sBrowseContinuousMethod != nullptr, CHIP_ERROR_INVALID_ARGUMENT);
+    VerifyOrReturnError(sMdnsCallbackObject.HasValidObjectRef(), CHIP_ERROR_INCORRECT_STATE);
+
+    std::string serviceType = GetFullTypeWithSubTypes(type, protocol);
+    JNIEnv * env            = JniReferences::GetInstance().GetEnvForCurrentThread();
+    VerifyOrReturnError(env != nullptr, CHIP_JNI_ERROR_NO_ENV,
+                        ChipLogError(Discovery, "Failed to GetEnvForCurrentThread for ChipDnssdBrowse(delegate)"));
+    UtfString jniServiceType(env, serviceType.c_str());
+
+    env->CallVoidMethod(sBrowserObject.ObjectRef(), sBrowseContinuousMethod, jniServiceType.jniValue(),
+                        reinterpret_cast<jlong>(delegate), static_cast<jlong>(0), sMdnsCallbackObject.ObjectRef());
+
+    if (env->ExceptionCheck())
+    {
+        ChipLogError(Discovery, "Java exception in ChipDnssdBrowse(delegate)");
+        env->ExceptionDescribe();
+        env->ExceptionClear();
+        return CHIP_JNI_ERROR_EXCEPTION_THROWN;
+    }
+
+    return CHIP_NO_ERROR;
+}
+
+CHIP_ERROR ChipDnssdStopBrowse(DnssdBrowseDelegate * delegate)
+{
+    VerifyOrReturnError(delegate != nullptr, CHIP_ERROR_INVALID_ARGUMENT);
+    VerifyOrReturnError(sBrowserObject.HasValidObjectRef() && sStopBrowseMethod != nullptr, CHIP_ERROR_INVALID_ARGUMENT);
+
+    JNIEnv * env = JniReferences::GetInstance().GetEnvForCurrentThread();
+    VerifyOrReturnError(env != nullptr, CHIP_JNI_ERROR_NO_ENV,
+                        ChipLogError(Discovery, "Failed to GetEnvForCurrentThread for ChipDnssdStopBrowse(delegate)"));
+
+    env->CallVoidMethod(sBrowserObject.ObjectRef(), sStopBrowseMethod, reinterpret_cast<jlong>(delegate));
+
+    if (env->ExceptionCheck())
+    {
+        ChipLogError(Discovery, "Java exception in ChipDnssdStopBrowse(delegate)");
+        env->ExceptionDescribe();
+        env->ExceptionClear();
+        return CHIP_JNI_ERROR_EXCEPTION_THROWN;
+    }
+
+    return CHIP_NO_ERROR;
+}
+
 template <size_t N>
 CHIP_ERROR extractProtocol(const char * serviceType, char (&outServiceName)[N], DnssdServiceProtocol & outProtocol)
 {
@@ -333,6 +383,8 @@ void InitializeWithObjects(jobject resolverObject, jobject browserObject, jobjec
         env->GetMethodID(resolverClass, "resolve", "(Ljava/lang/String;Ljava/lang/String;JJLchip/platform/ChipMdnsCallback;)V");
 
     sBrowseMethod = env->GetMethodID(browserClass, "browse", "(Ljava/lang/String;JJLchip/platform/ChipMdnsCallback;)V");
+    sBrowseContinuousMethod =
+        env->GetMethodID(browserClass, "browseContinuous", "(Ljava/lang/String;JJLchip/platform/ChipMdnsCallback;)V");
 
     sStopBrowseMethod = env->GetMethodID(browserClass, "stopDiscover", "(J)V");
 
@@ -345,6 +397,12 @@ void InitializeWithObjects(jobject resolverObject, jobject browserObject, jobjec
     if (sBrowseMethod == nullptr)
     {
         ChipLogError(Discovery, "Failed to access Discover 'browse' method");
+        env->ExceptionClear();
+    }
+
+    if (sBrowseContinuousMethod == nullptr)
+    {
+        ChipLogError(Discovery, "Failed to access Discover 'browseContinuous' method");
         env->ExceptionClear();
     }
 
@@ -519,6 +577,62 @@ void HandleBrowse(jobjectArray instanceName, jstring serviceType, jlong callback
 
     dispatch(CHIP_NO_ERROR, service, size);
     delete[] service;
+}
+
+namespace {
+CHIP_ERROR BuildBrowseEventService(JNIEnv * env, jstring instanceName, jstring serviceType, DnssdService & service)
+{
+    JniUtfString jniInstanceName(env, instanceName);
+    JniUtfString jniServiceType(env, serviceType);
+
+    VerifyOrReturnError(strlen(jniInstanceName.c_str()) <= Operational::kInstanceNameMaxLength, CHIP_ERROR_INVALID_ARGUMENT);
+
+    CopyString(service.mName, jniInstanceName.c_str());
+    ReturnErrorOnFailure(extractProtocol(jniServiceType.c_str(), service.mType, service.mProtocol));
+    service.mInterface = Inet::InterfaceId::Null();
+    return CHIP_NO_ERROR;
+}
+} // namespace
+
+void HandleBrowseAdd(jstring instanceName, jstring serviceType, jlong callbackHandle)
+{
+    VerifyOrReturn(callbackHandle != 0, ChipLogError(Discovery, "HandleBrowseAdd called with callback equal to nullptr"));
+
+    JNIEnv * env = JniReferences::GetInstance().GetEnvForCurrentThread();
+    VerifyOrReturn(env != nullptr, ChipLogError(Discovery, "HandleBrowseAdd could not get JNIEnv"));
+
+    DnssdService service = {};
+    VerifyOrReturn(BuildBrowseEventService(env, instanceName, serviceType, service) == CHIP_NO_ERROR,
+                   ChipLogError(Discovery, "HandleBrowseAdd failed to build browse event service"));
+
+    DeviceLayer::StackLock lock;
+    auto * delegate = reinterpret_cast<DnssdBrowseDelegate *>(callbackHandle);
+    delegate->OnBrowseAdd(service);
+}
+
+void HandleBrowseRemove(jstring instanceName, jstring serviceType, jlong callbackHandle)
+{
+    VerifyOrReturn(callbackHandle != 0, ChipLogError(Discovery, "HandleBrowseRemove called with callback equal to nullptr"));
+
+    JNIEnv * env = JniReferences::GetInstance().GetEnvForCurrentThread();
+    VerifyOrReturn(env != nullptr, ChipLogError(Discovery, "HandleBrowseRemove could not get JNIEnv"));
+
+    DnssdService service = {};
+    VerifyOrReturn(BuildBrowseEventService(env, instanceName, serviceType, service) == CHIP_NO_ERROR,
+                   ChipLogError(Discovery, "HandleBrowseRemove failed to build browse event service"));
+
+    DeviceLayer::StackLock lock;
+    auto * delegate = reinterpret_cast<DnssdBrowseDelegate *>(callbackHandle);
+    delegate->OnBrowseRemove(service);
+}
+
+void HandleBrowseStop(jlong callbackHandle, jint errorCode)
+{
+    VerifyOrReturn(callbackHandle != 0, ChipLogError(Discovery, "HandleBrowseStop called with callback equal to nullptr"));
+
+    DeviceLayer::StackLock lock;
+    auto * delegate = reinterpret_cast<DnssdBrowseDelegate *>(callbackHandle);
+    delegate->OnBrowseStop(errorCode == 0 ? CHIP_NO_ERROR : CHIP_ERROR_INTERNAL);
 }
 
 } // namespace Dnssd
