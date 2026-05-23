@@ -41,23 +41,26 @@ void ResolverProxy::Shutdown()
     mContext = nullptr;
 }
 
-CHIP_ERROR ResolverProxy::DiscoverCommissionableNodes(DiscoveryFilter filter)
+CHIP_ERROR ResolverProxy::DiscoverCommissionableNodes(DiscoveryFilter filter, DiscoveryMode mode)
 {
     VerifyOrReturnError(mContext != nullptr, CHIP_ERROR_INCORRECT_STATE);
+    mContext->SetDiscoveryMode(mode);
 
     return mResolver.StartDiscovery(DiscoveryType::kCommissionableNode, filter, *mContext);
 }
 
-CHIP_ERROR ResolverProxy::DiscoverCommissioners(DiscoveryFilter filter)
+CHIP_ERROR ResolverProxy::DiscoverCommissioners(DiscoveryFilter filter, DiscoveryMode mode)
 {
     VerifyOrReturnError(mContext != nullptr, CHIP_ERROR_INCORRECT_STATE);
+    mContext->SetDiscoveryMode(mode);
 
     return mResolver.StartDiscovery(DiscoveryType::kCommissionerNode, filter, *mContext);
 }
 
-CHIP_ERROR ResolverProxy::DiscoverOperationalNodes(DiscoveryFilter filter)
+CHIP_ERROR ResolverProxy::DiscoverOperationalNodes(DiscoveryFilter filter, DiscoveryMode mode)
 {
     VerifyOrReturnError(mContext != nullptr, CHIP_ERROR_INCORRECT_STATE);
+    mContext->SetDiscoveryMode(mode);
 
     return mResolver.StartDiscovery(DiscoveryType::kOperational, filter, *mContext);
 }

@@ -75,6 +75,11 @@ void DiscoveryDelegateImpl::HandleOnUpdated(matter::casting::memory::Strong<matt
     ChipLogProgress(AppServer, "DiscoveryDelegateImpl::HandleOnUpdated() Updated CastingPlayer with ID: %s", player->GetId());
 }
 
+void DiscoveryDelegateImpl::HandleOnRemoved(matter::casting::memory::Strong<matter::casting::core::CastingPlayer> player)
+{
+    ChipLogProgress(AppServer, "DiscoveryDelegateImpl::HandleOnRemoved() Removed CastingPlayer with ID: %s", player->GetId());
+}
+
 void InvokeContentLauncherLaunchURL(matter::casting::memory::Strong<matter::casting::core::Endpoint> endpoint)
 {
     // get contentLauncherCluster from the endpoint

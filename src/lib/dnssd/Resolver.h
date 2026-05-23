@@ -77,6 +77,8 @@ public:
     void SetBrowseIdentifier(intptr_t identifier) { mBrowseIdentifier.emplace(identifier); }
     void ClearBrowseIdentifier() { mBrowseIdentifier.reset(); }
     const std::optional<intptr_t> & GetBrowseIdentifier() const { return mBrowseIdentifier; }
+    void SetDiscoveryMode(DiscoveryMode mode) { mDiscoveryMode = mode; }
+    DiscoveryMode GetDiscoveryMode() const { return mDiscoveryMode; }
 
     void SetDiscoveryDelegate(DiscoverNodeDelegate * delegate) { mDelegate = delegate; }
     void OnNodeDiscovered(const DiscoveredNodeData & nodeData)
@@ -90,10 +92,22 @@ public:
             ChipLogError(Discovery, "Missing commissioning delegate. Data discarded");
         }
     }
+    void OnNodeRemoved(const DiscoveredNodeData & nodeData)
+    {
+        if (mDelegate != nullptr)
+        {
+            mDelegate->OnNodeRemoved(nodeData);
+        }
+        else
+        {
+            ChipLogError(Discovery, "Missing commissioning delegate. Removal discarded");
+        }
+    }
 
 private:
     DiscoverNodeDelegate * mDelegate = nullptr;
     std::optional<intptr_t> mBrowseIdentifier;
+    DiscoveryMode mDiscoveryMode = DiscoveryMode::kSnapshot;
 };
 
 /**
