@@ -26,6 +26,43 @@ using namespace chip::System;
 using namespace chip::Controller;
 using namespace chip::Dnssd;
 
+namespace {
+
+CastingPlayerAttributes BuildCastingPlayerAttributes(const chip::Dnssd::CommissionNodeData & nodeData)
+{
+    CastingPlayerAttributes attributes;
+    snprintf(attributes.id, kIdMaxLength + 1, "%s%u", nodeData.hostName, nodeData.port);
+
+    chip::Platform::CopyString(attributes.deviceName, chip::Dnssd::kMaxDeviceNameLen + 1, nodeData.deviceName);
+    chip::Platform::CopyString(attributes.hostName, chip::Dnssd::kHostNameMaxLength + 1, nodeData.hostName);
+    chip::Platform::CopyString(attributes.instanceName, chip::Dnssd::Commission::kInstanceNameMaxLength + 1, nodeData.instanceName);
+
+    attributes.numIPs = static_cast<unsigned int>(nodeData.numIPs);
+    for (unsigned j = 0; j < attributes.numIPs; j++)
+    {
+        attributes.ipAddresses[j] = nodeData.ipAddress[j];
+    }
+    attributes.interfaceId                           = nodeData.interfaceId;
+    attributes.port                                  = nodeData.port;
+    attributes.productId                             = nodeData.productId;
+    attributes.vendorId                              = nodeData.vendorId;
+    attributes.deviceType                            = nodeData.deviceType;
+    attributes.supportsCommissionerGeneratedPasscode = nodeData.supportsCommissionerGeneratedPasscode;
+    return attributes;
+}
+
+bool MatchesNodeIdentity(const memory::Strong<CastingPlayer> & castingPlayer, const chip::Dnssd::CommissionNodeData & nodeData)
+{
+    if (nodeData.instanceName[0] != '\0' && strlen(castingPlayer->GetInstanceName()) != 0)
+    {
+        return strcmp(castingPlayer->GetInstanceName(), nodeData.instanceName) == 0;
+    }
+
+    return strcmp(castingPlayer->GetHostName(), nodeData.hostName) == 0 && castingPlayer->GetPort() == nodeData.port;
+}
+
+} // namespace
+
 CastingPlayerDiscovery * CastingPlayerDiscovery::_castingPlayerDiscovery = nullptr;
 
 CastingPlayerDiscovery::CastingPlayerDiscovery() {}
@@ -39,7 +76,7 @@ CastingPlayerDiscovery * CastingPlayerDiscovery::GetInstance()
     return _castingPlayerDiscovery;
 }
 
-CHIP_ERROR CastingPlayerDiscovery::StartDiscovery(uint32_t deviceTypeFilter)
+CHIP_ERROR CastingPlayerDiscovery::StartDiscovery(uint32_t deviceTypeFilter, chip::Dnssd::DiscoveryMode mode)
 {
     ChipLogProgress(Discovery, "CastingPlayerDiscovery::StartDiscovery() called");
     VerifyOrReturnError(mState == DISCOVERY_READY, CHIP_ERROR_INCORRECT_STATE);
@@ -49,11 +86,11 @@ CHIP_ERROR CastingPlayerDiscovery::StartDiscovery(uint32_t deviceTypeFilter)
     if (deviceTypeFilter > 0)
     {
         ReturnErrorOnFailure(mCommissionableNodeController.DiscoverCommissioners(
-            DiscoveryFilter(DiscoveryFilterType::kDeviceType, deviceTypeFilter)));
+            DiscoveryFilter(DiscoveryFilterType::kDeviceType, deviceTypeFilter), mode));
     }
     else
     {
-        ReturnErrorOnFailure(mCommissionableNodeController.DiscoverCommissioners());
+        ReturnErrorOnFailure(mCommissionableNodeController.DiscoverCommissioners(DiscoveryFilter(), mode));
     }
 
     mState = DISCOVERY_RUNNING;
@@ -113,53 +150,51 @@ void DeviceDiscoveryDelegateImpl::OnDiscoveredDevice(const chip::Dnssd::Commissi
     VerifyOrReturn(mClientDelegate != nullptr,
                    ChipLogError(Discovery, "DeviceDiscoveryDelegateImpl::OnDiscoveredDevice mClientDelegate is a nullptr"));
 
-    // convert nodeData to CastingPlayer
-    CastingPlayerAttributes attributes;
-    snprintf(attributes.id, kIdMaxLength + 1, "%s%u", nodeData.hostName, nodeData.port);
-
-    chip::Platform::CopyString(attributes.deviceName, chip::Dnssd::kMaxDeviceNameLen + 1, nodeData.deviceName);
-    chip::Platform::CopyString(attributes.hostName, chip::Dnssd::kHostNameMaxLength + 1, nodeData.hostName);
-    chip::Platform::CopyString(attributes.instanceName, chip::Dnssd::Commission::kInstanceNameMaxLength + 1, nodeData.instanceName);
-
-    attributes.numIPs = (unsigned int) nodeData.numIPs;
-    for (unsigned j = 0; j < attributes.numIPs; j++)
-    {
-        attributes.ipAddresses[j] = nodeData.ipAddress[j];
-    }
-    attributes.interfaceId                           = nodeData.interfaceId;
-    attributes.port                                  = nodeData.port;
-    attributes.productId                             = nodeData.productId;
-    attributes.vendorId                              = nodeData.vendorId;
-    attributes.deviceType                            = nodeData.deviceType;
-    attributes.supportsCommissionerGeneratedPasscode = nodeData.supportsCommissionerGeneratedPasscode;
-
-    memory::Strong<CastingPlayer> player = std::make_shared<CastingPlayer>(attributes);
-
+    CastingPlayerAttributes attributes = BuildCastingPlayerAttributes(nodeData);
     std::vector<memory::Strong<CastingPlayer>> castingPlayers = CastingPlayerDiscovery::GetInstance()->GetCastingPlayers();
 
-    // Add to or update castingPlayers
-    if (castingPlayers.size() != 0)
+    if (!castingPlayers.empty())
     {
-        auto it =
-            std::find_if(castingPlayers.begin(), castingPlayers.end(),
-                         [&player](const memory::Strong<CastingPlayer> & castingPlayer) { return *castingPlayer == *player; });
+        auto it = std::find_if(castingPlayers.begin(), castingPlayers.end(), [&nodeData](const memory::Strong<CastingPlayer> & castingPlayer) {
+            return MatchesNodeIdentity(castingPlayer, nodeData);
+        });
 
-        // ID match found in castingPlayer, perfom update
         if (it != castingPlayers.end())
         {
-            unsigned index                                         = (unsigned int) std::distance(castingPlayers.begin(), it);
-            castingPlayers[index]                                  = player;
-            CastingPlayerDiscovery::GetInstance()->mCastingPlayers = castingPlayers;
+            (*it)->UpdateFromAttributes(attributes);
+            (*it)->SetActive(true);
             ChipLogProgress(AppServer, "Updated Casting Player");
-
-            mClientDelegate->HandleOnUpdated(player);
+            mClientDelegate->HandleOnUpdated(*it);
             return;
         }
     }
 
+    memory::Strong<CastingPlayer> player = std::make_shared<CastingPlayer>(attributes);
+    player->SetActive(true);
     castingPlayers.push_back(player);
     CastingPlayerDiscovery::GetInstance()->mCastingPlayers = castingPlayers;
     mClientDelegate->HandleOnAdded(player);
+}
+
+void DeviceDiscoveryDelegateImpl::OnRemovedDevice(const chip::Dnssd::CommissionNodeData & nodeData)
+{
+    ChipLogProgress(Discovery, "DeviceDiscoveryDelegateImpl::OnRemovedDevice() called");
+    VerifyOrReturn(mClientDelegate != nullptr,
+                   ChipLogError(Discovery, "DeviceDiscoveryDelegateImpl::OnRemovedDevice mClientDelegate is a nullptr"));
+
+    std::vector<memory::Strong<CastingPlayer>> castingPlayers = CastingPlayerDiscovery::GetInstance()->GetCastingPlayers();
+    auto it = std::find_if(castingPlayers.begin(), castingPlayers.end(), [&nodeData](const memory::Strong<CastingPlayer> & castingPlayer) {
+        return MatchesNodeIdentity(castingPlayer, nodeData);
+    });
+
+    VerifyOrReturn(it != castingPlayers.end(),
+                   ChipLogProgress(Discovery, "DeviceDiscoveryDelegateImpl::OnRemovedDevice no matching CastingPlayer found"));
+
+    memory::Strong<CastingPlayer> player = *it;
+    player->SetActive(false);
+    castingPlayers.erase(it);
+    CastingPlayerDiscovery::GetInstance()->mCastingPlayers = castingPlayers;
+    mClientDelegate->HandleOnRemoved(player);
 }
 
 }; // namespace core

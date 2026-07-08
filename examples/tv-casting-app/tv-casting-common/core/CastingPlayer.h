@@ -143,6 +143,7 @@ public:
      * @return true if this CastingPlayer is connected to the CastingApp
      */
     bool IsConnected() const { return mConnectionState == CASTING_PLAYER_CONNECTED; }
+    bool IsActive() const { return mIsActive; }
 
     /**
      * @brief Directly sends a User-directed Commissioning request with the provided idOptions.
@@ -282,6 +283,9 @@ public:
      */
     void RegisterEndpoint(const memory::Strong<Endpoint> endpoint);
 
+    void UpdateFromAttributes(const CastingPlayerAttributes & playerAttributes);
+    void SetActive(bool isActive) { mIsActive = isActive; }
+
     const std::vector<memory::Strong<Endpoint>> GetEndpoints() const { return mEndpoints; }
 
     void LogDetail() const;
@@ -344,6 +348,7 @@ protected:
 private:
     std::vector<memory::Strong<Endpoint>> mEndpoints;
     ConnectionState mConnectionState = CASTING_PLAYER_NOT_CONNECTED;
+    bool mIsActive                   = true;
     CastingPlayerAttributes mAttributes;
     IdentificationDeclarationOptions mIdOptions;
     uint16_t mCommissioningWindowTimeoutSec = kCommissioningWindowTimeoutSec;

@@ -42,6 +42,7 @@ public:
     explicit AbstractDnssdDiscoveryController(Dnssd::Resolver * resolver = nullptr) : mDNSResolver(resolver) {}
 
     void OnNodeDiscovered(const chip::Dnssd::DiscoveredNodeData & nodeData) override;
+    void OnNodeRemoved(const chip::Dnssd::DiscoveredNodeData & nodeData) override;
     CHIP_ERROR StopDiscovery() { return mDNSResolver.StopDiscovery(); };
 
 protected:

@@ -17,6 +17,7 @@
  */
 
 #include "Converters-JNI.h"
+#include <lib/support/CHIPJNIError.h>
 #include <lib/support/JniReferences.h>
 
 namespace matter {
@@ -231,13 +232,15 @@ jobject convertCastingPlayerFromCppToJava(matter::casting::memory::Strong<core::
         env->ExceptionClear();
         return jMatterCastingPlayer;
     }
-    // Set the value of the _cppCastingPlayer field in the Java object to the C++ CastingPlayer pointer.
+    auto * handle = new CastingPlayerHandle{ player };
+    VerifyOrReturnValue(handle != nullptr, nullptr, ChipLogError(AppServer, "convertCastingPlayerFromCppToJava() no memory for handle"));
+
     jfieldID longFieldId = env->GetFieldID(matterCastingPlayerJavaClass, "_cppCastingPlayer", "J");
-    env->SetLongField(jMatterCastingPlayer, longFieldId, reinterpret_cast<jlong>(player.get()));
+    env->SetLongField(jMatterCastingPlayer, longFieldId, reinterpret_cast<jlong>(handle));
     return jMatterCastingPlayer;
 }
 
-core::CastingPlayer * convertCastingPlayerFromJavaToCpp(jobject jCastingPlayerObject)
+matter::casting::memory::Strong<core::CastingPlayer> convertCastingPlayerFromJavaToCpp(jobject jCastingPlayerObject)
 {
     ChipLogProgress(AppServer, "convertCastingPlayerFromJavaToCpp() called");
     JNIEnv * env = chip::JniReferences::GetInstance().GetEnvForCurrentThread();
@@ -248,14 +251,44 @@ core::CastingPlayer * convertCastingPlayerFromJavaToCpp(jobject jCastingPlayerOb
     {
         ChipLogError(AppServer, "convertCastingPlayerFromJavaToCpp() could not locate CastingPlayer Java class");
         env->ExceptionClear();
-        return nullptr;
+        return {};
     }
 
     jfieldID _cppCastingPlayerFieldId = env->GetFieldID(castingPlayerClass, "_cppCastingPlayer", "J");
     VerifyOrReturnValue(_cppCastingPlayerFieldId != nullptr, nullptr,
                         ChipLogError(AppServer, "convertCastingPlayerFromJavaToCpp _cppCastingPlayerFieldId == nullptr"));
-    jlong _cppCastingPlayerValue = env->GetLongField(jCastingPlayerObject, _cppCastingPlayerFieldId);
-    return reinterpret_cast<core::CastingPlayer *>(_cppCastingPlayerValue);
+    auto * handle = reinterpret_cast<CastingPlayerHandle *>(env->GetLongField(jCastingPlayerObject, _cppCastingPlayerFieldId));
+    VerifyOrReturnValue(handle != nullptr, nullptr,
+                        ChipLogError(AppServer, "convertCastingPlayerFromJavaToCpp() handle == nullptr"));
+
+    auto player = handle->player.lock();
+    VerifyOrReturnValue(player != nullptr, nullptr,
+                        ChipLogError(AppServer, "convertCastingPlayerFromJavaToCpp() CastingPlayer no longer exists"));
+    return player;
+}
+
+CHIP_ERROR releaseCastingPlayerHandle(jobject jCastingPlayerObject)
+{
+    JNIEnv * env = chip::JniReferences::GetInstance().GetEnvForCurrentThread();
+    VerifyOrReturnError(env != nullptr, CHIP_JNI_ERROR_NO_ENV,
+                        ChipLogError(AppServer, "releaseCastingPlayerHandle() could not get JNIEnv for current thread"));
+
+    jclass castingPlayerClass = env->GetObjectClass(jCastingPlayerObject);
+    VerifyOrReturnError(castingPlayerClass != nullptr, CHIP_ERROR_INVALID_ARGUMENT,
+                        ChipLogError(AppServer, "releaseCastingPlayerHandle() could not locate CastingPlayer Java class"));
+
+    jfieldID fieldId = env->GetFieldID(castingPlayerClass, "_cppCastingPlayer", "J");
+    VerifyOrReturnError(fieldId != nullptr, CHIP_ERROR_INVALID_ARGUMENT,
+                        ChipLogError(AppServer, "releaseCastingPlayerHandle() field id not found"));
+
+    auto * handle = reinterpret_cast<CastingPlayerHandle *>(env->GetLongField(jCastingPlayerObject, fieldId));
+    if (handle != nullptr)
+    {
+        delete handle;
+        env->SetLongField(jCastingPlayerObject, fieldId, static_cast<jlong>(0));
+    }
+
+    return CHIP_NO_ERROR;
 }
 
 jobject convertClusterFromCppToJava(matter::casting::memory::Strong<core::BaseCluster> cluster, const char * className)

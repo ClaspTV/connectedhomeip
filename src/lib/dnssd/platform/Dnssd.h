@@ -234,7 +234,6 @@ CHIP_ERROR ChipDnssdBrowse(const char * type, DnssdServiceProtocol protocol, chi
  */
 CHIP_ERROR ChipDnssdStopBrowse(intptr_t browseIdentifier);
 
-#if CHIP_DEVICE_LAYER_TARGET_DARWIN
 /**
  * This function continuously browses the services published by mDNS
  * and reports any addition/removal of services.
@@ -258,7 +257,6 @@ CHIP_ERROR ChipDnssdBrowse(const char * type, DnssdServiceProtocol protocol, chi
  * will call the OnBrowseStop method of the delegate.
  */
 CHIP_ERROR ChipDnssdStopBrowse(DnssdBrowseDelegate * delegate);
-#endif // CHIP_DEVICE_LAYER_TARGET_DARWIN
 
 /**
  * This function resolves the services published by mDNS

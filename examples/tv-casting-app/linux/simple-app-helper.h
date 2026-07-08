@@ -68,6 +68,7 @@ public:
      * @param player the updated CastingPlayer
      */
     void HandleOnUpdated(matter::casting::memory::Strong<matter::casting::core::CastingPlayer> player) override;
+    void HandleOnRemoved(matter::casting::memory::Strong<matter::casting::core::CastingPlayer> player) override;
 };
 
 /**
