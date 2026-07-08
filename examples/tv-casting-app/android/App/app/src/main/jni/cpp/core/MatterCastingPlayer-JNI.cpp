@@ -295,10 +295,14 @@ JNI_METHOD(jstring, getConnectionStateNative)
     ChipLogProgress(AppServer, "MatterCastingPlayer-JNI::getConnectionState()");
 
     memory::Strong<CastingPlayer> castingPlayer = support::convertCastingPlayerFromJavaToCpp(thiz);
-    jstring result                = nullptr;
-    LogErrorOnFailure(JniReferences::GetInstance().CharToStringUTF(
-        chip::CharSpan("Cast Player is nullptr", strlen("Cast Player is nullptr")), reinterpret_cast<jobject &>(result)));
-    VerifyOrReturnValue(castingPlayer != nullptr, result);
+    if (castingPlayer == nullptr)
+    {
+        ChipLogError(AppServer, "MatterCastingPlayer-JNI::getConnectionStateNative() castingPlayer == nullptr, returning NOT_CONNECTED");
+        jstring notConnected = nullptr;
+        LogErrorOnFailure(
+            JniReferences::GetInstance().CharToStringUTF(CharSpan::fromCharString("NOT_CONNECTED"), reinterpret_cast<jobject &>(notConnected)));
+        return notConnected;
+    }
 
     matter::casting::core::ConnectionState state = castingPlayer->GetConnectionState();
     switch (state)
