@@ -44,6 +44,13 @@ public:
     static MCDiscoveryDelegateImpl * GetInstance();
     void HandleOnAdded(matter::casting::memory::Strong<matter::casting::core::CastingPlayer> player) override;
     void HandleOnUpdated(matter::casting::memory::Strong<matter::casting::core::CastingPlayer> player) override;
+    // TODO: Implement HandleOnRemoved to post REMOVE_CASTING_PLAYER_NOTIFICATION_NAME notification
+    // (analogous to HandleOnAdded). Without this, the Swift displayedCastingPlayers array is never
+    // pruned when a player is transiently lost (e.g. TV updates its mDNS TXT record during
+    // commissioning), causing duplicate entries when the same player is re-discovered via
+    // HandleOnAdded shortly after. Note: iOS currently avoids the mTargetCastingPlayer expiry crash
+    // because MCCastingPlayer holds a Strong<CastingPlayer> (shared_ptr), but once HandleOnRemoved
+    // is implemented, care must be taken not to release the MCCastingPlayer while connecting.
 };
 
 @implementation MCCastingPlayerDiscovery
