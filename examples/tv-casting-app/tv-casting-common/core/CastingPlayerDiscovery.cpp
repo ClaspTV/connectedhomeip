@@ -146,7 +146,9 @@ void CastingPlayerDiscovery::ClearCastingPlayersInternal()
 
 void DeviceDiscoveryDelegateImpl::OnDiscoveredDevice(const chip::Dnssd::CommissionNodeData & nodeData)
 {
-    ChipLogProgress(Discovery, "DeviceDiscoveryDelegateImpl::OnDiscoveredDevice() called");
+    ChipLogProgress(Discovery,
+                    "DeviceDiscoveryDelegateImpl::OnDiscoveredDevice() instanceName='%s' deviceName='%s' port=%u",
+                    nodeData.instanceName, nodeData.deviceName, nodeData.port);
     VerifyOrReturn(mClientDelegate != nullptr,
                    ChipLogError(Discovery, "DeviceDiscoveryDelegateImpl::OnDiscoveredDevice mClientDelegate is a nullptr"));
 
@@ -178,7 +180,9 @@ void DeviceDiscoveryDelegateImpl::OnDiscoveredDevice(const chip::Dnssd::Commissi
 
 void DeviceDiscoveryDelegateImpl::OnRemovedDevice(const chip::Dnssd::CommissionNodeData & nodeData)
 {
-    ChipLogProgress(Discovery, "DeviceDiscoveryDelegateImpl::OnRemovedDevice() called");
+    ChipLogProgress(Discovery,
+                    "DeviceDiscoveryDelegateImpl::OnRemovedDevice() instanceName='%s' deviceName='%s' port=%u",
+                    nodeData.instanceName, nodeData.deviceName, nodeData.port);
     VerifyOrReturn(mClientDelegate != nullptr,
                    ChipLogError(Discovery, "DeviceDiscoveryDelegateImpl::OnRemovedDevice mClientDelegate is a nullptr"));
 
@@ -188,9 +192,17 @@ void DeviceDiscoveryDelegateImpl::OnRemovedDevice(const chip::Dnssd::CommissionN
     });
 
     VerifyOrReturn(it != castingPlayers.end(),
-                   ChipLogProgress(Discovery, "DeviceDiscoveryDelegateImpl::OnRemovedDevice no matching CastingPlayer found"));
+                   ChipLogProgress(Discovery, "DeviceDiscoveryDelegateImpl::OnRemovedDevice() no matching CastingPlayer found"));
 
     memory::Strong<CastingPlayer> player = *it;
+
+    if (player->GetConnectionState() == CASTING_PLAYER_CONNECTING)
+    {
+        ChipLogProgress(Discovery,
+                        "DeviceDiscoveryDelegateImpl::OnRemovedDevice() suppressed removal, commissioning in progress");
+        return;
+    }
+
     player->SetActive(false);
     castingPlayers.erase(it);
     CastingPlayerDiscovery::GetInstance()->mCastingPlayers = castingPlayers;
