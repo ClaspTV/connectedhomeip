@@ -28,29 +28,6 @@ using namespace chip::Dnssd;
 
 namespace {
 
-CastingPlayerAttributes BuildCastingPlayerAttributes(const chip::Dnssd::CommissionNodeData & nodeData)
-{
-    CastingPlayerAttributes attributes;
-    snprintf(attributes.id, kIdMaxLength + 1, "%s%u", nodeData.hostName, nodeData.port);
-
-    chip::Platform::CopyString(attributes.deviceName, chip::Dnssd::kMaxDeviceNameLen + 1, nodeData.deviceName);
-    chip::Platform::CopyString(attributes.hostName, chip::Dnssd::kHostNameMaxLength + 1, nodeData.hostName);
-    chip::Platform::CopyString(attributes.instanceName, chip::Dnssd::Commission::kInstanceNameMaxLength + 1, nodeData.instanceName);
-
-    attributes.numIPs = static_cast<unsigned int>(nodeData.numIPs);
-    for (unsigned j = 0; j < attributes.numIPs; j++)
-    {
-        attributes.ipAddresses[j] = nodeData.ipAddress[j];
-    }
-    attributes.interfaceId                           = nodeData.interfaceId;
-    attributes.port                                  = nodeData.port;
-    attributes.productId                             = nodeData.productId;
-    attributes.vendorId                              = nodeData.vendorId;
-    attributes.deviceType                            = nodeData.deviceType;
-    attributes.supportsCommissionerGeneratedPasscode = nodeData.supportsCommissionerGeneratedPasscode;
-    return attributes;
-}
-
 bool MatchesNodeIdentity(const memory::Strong<CastingPlayer> & castingPlayer, const chip::Dnssd::CommissionNodeData & nodeData)
 {
     if (nodeData.instanceName[0] != '\0' && strlen(castingPlayer->GetInstanceName()) != 0)
@@ -152,10 +129,29 @@ void DeviceDiscoveryDelegateImpl::OnDiscoveredDevice(const chip::Dnssd::Commissi
     VerifyOrReturn(mClientDelegate != nullptr,
                    ChipLogError(Discovery, "DeviceDiscoveryDelegateImpl::OnDiscoveredDevice mClientDelegate is a nullptr"));
 
-    CastingPlayerAttributes attributes = BuildCastingPlayerAttributes(nodeData);
+    // convert nodeData to CastingPlayer
+    CastingPlayerAttributes attributes;
+    snprintf(attributes.id, kIdMaxLength + 1, "%s%u", nodeData.hostName, nodeData.port);
+
+    chip::Platform::CopyString(attributes.deviceName, chip::Dnssd::kMaxDeviceNameLen + 1, nodeData.deviceName);
+    chip::Platform::CopyString(attributes.hostName, chip::Dnssd::kHostNameMaxLength + 1, nodeData.hostName);
+    chip::Platform::CopyString(attributes.instanceName, chip::Dnssd::Commission::kInstanceNameMaxLength + 1, nodeData.instanceName);
+
+    attributes.numIPs = (unsigned int) nodeData.numIPs;
+    for (unsigned j = 0; j < attributes.numIPs; j++)
+    {
+        attributes.ipAddresses[j] = nodeData.ipAddress[j];
+    }
+    attributes.interfaceId                           = nodeData.interfaceId;
+    attributes.port                                  = nodeData.port;
+    attributes.productId                             = nodeData.productId;
+    attributes.vendorId                              = nodeData.vendorId;
+    attributes.deviceType                            = nodeData.deviceType;
+    attributes.supportsCommissionerGeneratedPasscode = nodeData.supportsCommissionerGeneratedPasscode;
+
     std::vector<memory::Strong<CastingPlayer>> castingPlayers = CastingPlayerDiscovery::GetInstance()->GetCastingPlayers();
 
-    if (!castingPlayers.empty())
+    if (castingPlayers.size() != 0)
     {
         auto it = std::find_if(castingPlayers.begin(), castingPlayers.end(), [&nodeData](const memory::Strong<CastingPlayer> & castingPlayer) {
             return MatchesNodeIdentity(castingPlayer, nodeData);
