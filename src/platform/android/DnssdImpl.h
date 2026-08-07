@@ -37,6 +37,9 @@ void HandleResolve(jstring instanceName, jstring serviceType, jstring hostName, 
                    jlong callbackHandle, jlong contextHandle);
 
 void HandleBrowse(jobjectArray instanceName, jstring serviceType, jlong callbackHandle, jlong contextHandle);
+void HandleBrowseAdd(jstring instanceName, jstring serviceType, jlong callbackHandle);
+void HandleBrowseRemove(jstring instanceName, jstring serviceType, jlong callbackHandle);
+void HandleBrowseStop(jlong callbackHandle, jint errorCode);
 
 struct BrowseContext
 {

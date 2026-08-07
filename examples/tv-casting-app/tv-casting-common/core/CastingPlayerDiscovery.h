@@ -50,7 +50,7 @@ public:
     virtual ~DiscoveryDelegate() {}
     virtual void HandleOnAdded(memory::Strong<CastingPlayer> player)    = 0;
     virtual void HandleOnUpdated(memory::Strong<CastingPlayer> players) = 0;
-    // virtual void HandleOnRemoved(memory::Strong<CastingPlayer> players) = 0;
+    virtual void HandleOnRemoved(memory::Strong<CastingPlayer> player) {}
 };
 class CastingPlayer; // Forward declaration of the CastingPlayer class
 class CastingPlayerDiscovery;
@@ -69,6 +69,7 @@ public:
     DeviceDiscoveryDelegateImpl(DiscoveryDelegate * delegate) { mClientDelegate = delegate; }
 
     void OnDiscoveredDevice(const chip::Dnssd::CommissionNodeData & nodeData) override;
+    void OnRemovedDevice(const chip::Dnssd::CommissionNodeData & nodeData) override;
 };
 
 /**
@@ -120,7 +121,8 @@ public:
      * with CastingPlayers whose deviceType matches filterBydeviceType
      * @return CHIP_ERROR - CHIP_NO_ERROR if discovery for CastingPlayers started successfully, specific error code otherwise.
      */
-    CHIP_ERROR StartDiscovery(uint32_t filterBydeviceType = 0);
+    CHIP_ERROR StartDiscovery(uint32_t filterBydeviceType = 0,
+                              chip::Dnssd::DiscoveryMode mode = chip::Dnssd::DiscoveryMode::kSnapshot);
 
     /**
      * @brief Stop the discovery for CastingPlayers

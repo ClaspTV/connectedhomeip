@@ -416,6 +416,27 @@ JNI_MDNSCALLBACK_METHOD(void, handleServiceBrowse)
     HandleBrowse(instanceName, serviceType, callbackHandle, contextHandle);
 }
 
+JNI_MDNSCALLBACK_METHOD(void, handleServiceBrowseAdd)
+(JNIEnv * env, jclass self, jstring instanceName, jstring serviceType, jlong callbackHandle, jlong contextHandle)
+{
+    using ::chip::Dnssd::HandleBrowseAdd;
+    HandleBrowseAdd(instanceName, serviceType, callbackHandle);
+}
+
+JNI_MDNSCALLBACK_METHOD(void, handleServiceBrowseRemove)
+(JNIEnv * env, jclass self, jstring instanceName, jstring serviceType, jlong callbackHandle, jlong contextHandle)
+{
+    using ::chip::Dnssd::HandleBrowseRemove;
+    HandleBrowseRemove(instanceName, serviceType, callbackHandle);
+}
+
+JNI_MDNSCALLBACK_METHOD(void, handleServiceBrowseStop)
+(JNIEnv * env, jclass self, jlong callbackHandle, jlong contextHandle, jint errorCode)
+{
+    using ::chip::Dnssd::HandleBrowseStop;
+    HandleBrowseStop(callbackHandle, errorCode);
+}
+
 #if CHIP_DEVICE_CONFIG_ENABLE_CHIPOBLE
 static bool JavaBytesToUUID(JNIEnv * env, jbyteArray value, chip::Ble::ChipBleUUID & uuid)
 {

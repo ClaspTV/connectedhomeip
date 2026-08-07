@@ -33,6 +33,14 @@ public class ChipMdnsCallbackImpl implements ChipMdnsCallback {
   public native void handleServiceBrowse(
       String[] instanceName, String serviceType, long callbackHandle, long contextHandle);
 
+  public native void handleServiceBrowseAdd(
+      String instanceName, String serviceType, long callbackHandle, long contextHandle);
+
+  public native void handleServiceBrowseRemove(
+      String instanceName, String serviceType, long callbackHandle, long contextHandle);
+
+  public native void handleServiceBrowseStop(long callbackHandle, long contextHandle, int errorCode);
+
   public String[] getTextEntryKeys(Map<String, byte[]> textEntries) {
     return textEntries.keySet().toArray(new String[textEntries.size()]);
   }

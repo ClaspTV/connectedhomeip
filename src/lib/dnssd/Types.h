@@ -88,6 +88,12 @@ enum class DiscoveryType
     kCommissionerNode
 };
 
+enum class DiscoveryMode : uint8_t
+{
+    kSnapshot,
+    kContinuous,
+};
+
 struct CommonResolutionData
 {
     static constexpr unsigned kMaxIPAddresses = CHIP_DEVICE_CONFIG_MAX_DISCOVERED_IP_ADDRESSES;
@@ -343,6 +349,10 @@ public:
     /// May be called multiple times as more nodes send their answer to a
     /// multicast discovery query
     virtual void OnNodeDiscovered(const DiscoveredNodeData & nodeData) = 0;
+
+    /// Called within the CHIP event loop once a previously discovered node is
+    /// no longer being advertised.
+    virtual void OnNodeRemoved(const DiscoveredNodeData & nodeData) {}
 };
 
 } // namespace Dnssd

@@ -26,6 +26,20 @@ using namespace chip::System;
 using namespace chip::Controller;
 using namespace chip::Dnssd;
 
+namespace {
+
+bool MatchesNodeIdentity(const memory::Strong<CastingPlayer> & castingPlayer, const chip::Dnssd::CommissionNodeData & nodeData)
+{
+    if (nodeData.instanceName[0] != '\0' && strlen(castingPlayer->GetInstanceName()) != 0)
+    {
+        return strcmp(castingPlayer->GetInstanceName(), nodeData.instanceName) == 0;
+    }
+
+    return strcmp(castingPlayer->GetHostName(), nodeData.hostName) == 0 && castingPlayer->GetPort() == nodeData.port;
+}
+
+} // namespace
+
 CastingPlayerDiscovery * CastingPlayerDiscovery::_castingPlayerDiscovery = nullptr;
 
 CastingPlayerDiscovery::CastingPlayerDiscovery() {}
@@ -39,7 +53,7 @@ CastingPlayerDiscovery * CastingPlayerDiscovery::GetInstance()
     return _castingPlayerDiscovery;
 }
 
-CHIP_ERROR CastingPlayerDiscovery::StartDiscovery(uint32_t deviceTypeFilter)
+CHIP_ERROR CastingPlayerDiscovery::StartDiscovery(uint32_t deviceTypeFilter, chip::Dnssd::DiscoveryMode mode)
 {
     ChipLogProgress(Discovery, "CastingPlayerDiscovery::StartDiscovery() called");
     VerifyOrReturnError(mState == DISCOVERY_READY, CHIP_ERROR_INCORRECT_STATE);
@@ -49,11 +63,11 @@ CHIP_ERROR CastingPlayerDiscovery::StartDiscovery(uint32_t deviceTypeFilter)
     if (deviceTypeFilter > 0)
     {
         ReturnErrorOnFailure(mCommissionableNodeController.DiscoverCommissioners(
-            DiscoveryFilter(DiscoveryFilterType::kDeviceType, deviceTypeFilter)));
+            DiscoveryFilter(DiscoveryFilterType::kDeviceType, deviceTypeFilter), mode));
     }
     else
     {
-        ReturnErrorOnFailure(mCommissionableNodeController.DiscoverCommissioners());
+        ReturnErrorOnFailure(mCommissionableNodeController.DiscoverCommissioners(DiscoveryFilter(), mode));
     }
 
     mState = DISCOVERY_RUNNING;
@@ -109,7 +123,9 @@ void CastingPlayerDiscovery::ClearCastingPlayersInternal()
 
 void DeviceDiscoveryDelegateImpl::OnDiscoveredDevice(const chip::Dnssd::CommissionNodeData & nodeData)
 {
-    ChipLogProgress(Discovery, "DeviceDiscoveryDelegateImpl::OnDiscoveredDevice() called");
+    ChipLogProgress(Discovery,
+                    "DeviceDiscoveryDelegateImpl::OnDiscoveredDevice() instanceName='%s' deviceName='%s' port=%u",
+                    nodeData.instanceName, nodeData.deviceName, nodeData.port);
     VerifyOrReturn(mClientDelegate != nullptr,
                    ChipLogError(Discovery, "DeviceDiscoveryDelegateImpl::OnDiscoveredDevice mClientDelegate is a nullptr"));
 
@@ -133,33 +149,60 @@ void DeviceDiscoveryDelegateImpl::OnDiscoveredDevice(const chip::Dnssd::Commissi
     attributes.deviceType                            = nodeData.deviceType;
     attributes.supportsCommissionerGeneratedPasscode = nodeData.supportsCommissionerGeneratedPasscode;
 
-    memory::Strong<CastingPlayer> player = std::make_shared<CastingPlayer>(attributes);
-
     std::vector<memory::Strong<CastingPlayer>> castingPlayers = CastingPlayerDiscovery::GetInstance()->GetCastingPlayers();
 
-    // Add to or update castingPlayers
     if (castingPlayers.size() != 0)
     {
-        auto it =
-            std::find_if(castingPlayers.begin(), castingPlayers.end(),
-                         [&player](const memory::Strong<CastingPlayer> & castingPlayer) { return *castingPlayer == *player; });
+        auto it = std::find_if(castingPlayers.begin(), castingPlayers.end(), [&nodeData](const memory::Strong<CastingPlayer> & castingPlayer) {
+            return MatchesNodeIdentity(castingPlayer, nodeData);
+        });
 
-        // ID match found in castingPlayer, perfom update
         if (it != castingPlayers.end())
         {
-            unsigned index                                         = (unsigned int) std::distance(castingPlayers.begin(), it);
-            castingPlayers[index]                                  = player;
-            CastingPlayerDiscovery::GetInstance()->mCastingPlayers = castingPlayers;
+            (*it)->UpdateFromAttributes(attributes);
+            (*it)->SetActive(true);
             ChipLogProgress(AppServer, "Updated Casting Player");
-
-            mClientDelegate->HandleOnUpdated(player);
+            mClientDelegate->HandleOnUpdated(*it);
             return;
         }
     }
 
+    memory::Strong<CastingPlayer> player = std::make_shared<CastingPlayer>(attributes);
+    player->SetActive(true);
     castingPlayers.push_back(player);
     CastingPlayerDiscovery::GetInstance()->mCastingPlayers = castingPlayers;
     mClientDelegate->HandleOnAdded(player);
+}
+
+void DeviceDiscoveryDelegateImpl::OnRemovedDevice(const chip::Dnssd::CommissionNodeData & nodeData)
+{
+    ChipLogProgress(Discovery,
+                    "DeviceDiscoveryDelegateImpl::OnRemovedDevice() instanceName='%s' deviceName='%s' port=%u",
+                    nodeData.instanceName, nodeData.deviceName, nodeData.port);
+    VerifyOrReturn(mClientDelegate != nullptr,
+                   ChipLogError(Discovery, "DeviceDiscoveryDelegateImpl::OnRemovedDevice mClientDelegate is a nullptr"));
+
+    std::vector<memory::Strong<CastingPlayer>> castingPlayers = CastingPlayerDiscovery::GetInstance()->GetCastingPlayers();
+    auto it = std::find_if(castingPlayers.begin(), castingPlayers.end(), [&nodeData](const memory::Strong<CastingPlayer> & castingPlayer) {
+        return MatchesNodeIdentity(castingPlayer, nodeData);
+    });
+
+    VerifyOrReturn(it != castingPlayers.end(),
+                   ChipLogProgress(Discovery, "DeviceDiscoveryDelegateImpl::OnRemovedDevice() no matching CastingPlayer found"));
+
+    memory::Strong<CastingPlayer> player = *it;
+
+    if (player->GetConnectionState() == CASTING_PLAYER_CONNECTING)
+    {
+        ChipLogProgress(Discovery,
+                        "DeviceDiscoveryDelegateImpl::OnRemovedDevice() suppressed removal, commissioning in progress");
+        return;
+    }
+
+    player->SetActive(false);
+    castingPlayers.erase(it);
+    CastingPlayerDiscovery::GetInstance()->mCastingPlayers = castingPlayers;
+    mClientDelegate->HandleOnRemoved(player);
 }
 
 }; // namespace core

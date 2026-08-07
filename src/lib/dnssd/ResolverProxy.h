@@ -52,9 +52,10 @@ public:
         }
     }
 
-    CHIP_ERROR DiscoverCommissionableNodes(DiscoveryFilter filter = DiscoveryFilter());
-    CHIP_ERROR DiscoverCommissioners(DiscoveryFilter filter = DiscoveryFilter());
-    CHIP_ERROR DiscoverOperationalNodes(DiscoveryFilter filter = DiscoveryFilter());
+    CHIP_ERROR DiscoverCommissionableNodes(DiscoveryFilter filter = DiscoveryFilter(),
+                                           DiscoveryMode mode = DiscoveryMode::kSnapshot);
+    CHIP_ERROR DiscoverCommissioners(DiscoveryFilter filter = DiscoveryFilter(), DiscoveryMode mode = DiscoveryMode::kSnapshot);
+    CHIP_ERROR DiscoverOperationalNodes(DiscoveryFilter filter = DiscoveryFilter(), DiscoveryMode mode = DiscoveryMode::kSnapshot);
     CHIP_ERROR StopDiscovery();
 
 private:

@@ -20,6 +20,12 @@
 
 #include <inttypes.h>
 
+#include <map>
+#include <memory>
+#include <set>
+#include <string>
+#include <tuple>
+
 #include <app/icd/server/ICDServerConfig.h>
 #include <crypto/RandUtils.h>
 #include <inet/InetConfig.h>
@@ -39,6 +45,44 @@ namespace chip {
 namespace Dnssd {
 
 namespace {
+
+struct ContinuousBrowseKey
+{
+    std::string instanceName;
+    std::string serviceType;
+    uint64_t interfaceId = 0;
+
+    bool operator<(const ContinuousBrowseKey & other) const
+    {
+        return std::tie(instanceName, serviceType, interfaceId) < std::tie(other.instanceName, other.serviceType, other.interfaceId);
+    }
+};
+
+class ContinuousBrowseDelegateImpl;
+
+struct ContinuousResolveContext
+{
+    DiscoveryContext * discoveryContext;
+    std::shared_ptr<ContinuousBrowseDelegateImpl> browseDelegate;
+    ContinuousBrowseKey key;
+};
+
+ContinuousBrowseKey MakeContinuousBrowseKey(const DnssdService & service)
+{
+    ContinuousBrowseKey key;
+    key.instanceName = service.mName;
+    key.serviceType  = service.mType;
+    key.interfaceId  = service.mInterface.IsPresent() ? service.mInterface.GetPlatformInterface() : 0;
+    return key;
+}
+
+using ContinuousBrowseMap = std::map<DiscoveryContext *, std::shared_ptr<ContinuousBrowseDelegateImpl>>;
+
+ContinuousBrowseMap & GetContinuousBrowses()
+{
+    static ContinuousBrowseMap sContinuousBrowses;
+    return sContinuousBrowses;
+}
 
 static void HandleNodeResolve(void * context, DnssdService * result, const Span<Inet::IPAddress> & addresses, CHIP_ERROR error)
 {
@@ -64,6 +108,97 @@ static void HandleNodeResolve(void * context, DnssdService * result, const Span<
         discoveryContext->Release();
     }
 }
+
+class ContinuousBrowseDelegateImpl : public DnssdBrowseDelegate, public std::enable_shared_from_this<ContinuousBrowseDelegateImpl>
+{
+public:
+    explicit ContinuousBrowseDelegateImpl(DiscoveryContext & context) : mDiscoveryContext(context) {}
+
+    void OnBrowseAdd(DnssdService service) override
+    {
+        auto key = MakeContinuousBrowseKey(service);
+        mActiveBrowseKeys.insert(key);
+
+        auto * resolveContext = Platform::New<ContinuousResolveContext>();
+        VerifyOrReturn(resolveContext != nullptr, ChipLogError(Discovery, "Failed to allocate ContinuousResolveContext"));
+
+        resolveContext->discoveryContext = &mDiscoveryContext;
+        resolveContext->browseDelegate   = shared_from_this();
+        resolveContext->key              = key;
+
+        mDiscoveryContext.Retain();
+        CHIP_ERROR error = ChipDnssdResolve(&service, service.mInterface, HandleContinuousNodeResolve, resolveContext);
+        if (error != CHIP_NO_ERROR)
+        {
+            mDiscoveryContext.Release();
+            Platform::Delete(resolveContext);
+        }
+    }
+
+    void OnBrowseRemove(DnssdService service) override
+    {
+        auto key = MakeContinuousBrowseKey(service);
+        mActiveBrowseKeys.erase(key);
+
+        auto existing = mResolvedNodes.find(key);
+        if (existing == mResolvedNodes.end())
+        {
+            return;
+        }
+
+        DiscoveredNodeData nodeData;
+        nodeData.Set<CommissionNodeData>(existing->second);
+        mDiscoveryContext.OnNodeRemoved(nodeData);
+        mResolvedNodes.erase(existing);
+    }
+
+    void OnBrowseStop(CHIP_ERROR error) override
+    {
+        mActiveBrowseKeys.clear();
+        mResolvedNodes.clear();
+        GetContinuousBrowses().erase(&mDiscoveryContext);
+        mDiscoveryContext.Release();
+    }
+
+    void HandleResolved(const ContinuousBrowseKey & key, DnssdService * result, const Span<Inet::IPAddress> & addresses, CHIP_ERROR error)
+    {
+        if (error != CHIP_NO_ERROR && error != CHIP_ERROR_IN_PROGRESS)
+        {
+            return;
+        }
+
+        if (mActiveBrowseKeys.find(key) == mActiveBrowseKeys.end())
+        {
+            return;
+        }
+
+        DiscoveredNodeData nodeData;
+        result->ToDiscoveredCommissionNodeData(addresses, nodeData);
+        auto & commissionNode = nodeData.Get<CommissionNodeData>();
+        mResolvedNodes[key]   = commissionNode;
+        mDiscoveryContext.OnNodeDiscovered(nodeData);
+    }
+
+private:
+    static void HandleContinuousNodeResolve(void * context, DnssdService * result, const Span<Inet::IPAddress> & addresses,
+                                            CHIP_ERROR error)
+    {
+        auto * resolveContext = static_cast<ContinuousResolveContext *>(context);
+        VerifyOrReturn(resolveContext != nullptr);
+
+        resolveContext->browseDelegate->HandleResolved(resolveContext->key, result, addresses, error);
+
+        if (error != CHIP_ERROR_IN_PROGRESS)
+        {
+            resolveContext->discoveryContext->Release();
+            Platform::Delete(resolveContext);
+        }
+    }
+
+    DiscoveryContext & mDiscoveryContext;
+    std::set<ContinuousBrowseKey> mActiveBrowseKeys;
+    std::map<ContinuousBrowseKey, CommissionNodeData> mResolvedNodes;
+};
 
 static void HandleNodeOperationalBrowse(void * context, DnssdService * result, CHIP_ERROR error)
 {
@@ -748,6 +883,22 @@ CHIP_ERROR DiscoveryImplPlatform::DiscoverCommissionableNodes(DiscoveryFilter fi
     char serviceName[kMaxCommissionableServiceNameSize];
     ReturnErrorOnFailure(MakeServiceTypeName(serviceName, sizeof(serviceName), filter, DiscoveryType::kCommissionableNode));
 
+    if (context.GetDiscoveryMode() == DiscoveryMode::kContinuous)
+    {
+        auto browseDelegate              = std::make_shared<ContinuousBrowseDelegateImpl>(context);
+        GetContinuousBrowses()[&context] = browseDelegate;
+
+        context.Retain();
+        CHIP_ERROR error = ChipDnssdBrowse(serviceName, DnssdServiceProtocol::kDnssdProtocolUdp, Inet::IPAddressType::kAny,
+                                           Inet::InterfaceId::Null(), browseDelegate.get());
+        if (error != CHIP_NO_ERROR)
+        {
+            GetContinuousBrowses().erase(&context);
+            context.Release();
+        }
+        return error;
+    }
+
     intptr_t browseIdentifier;
     // Increase the reference count of the context to keep it alive until HandleNodeBrowse is called back.
     CHIP_ERROR error = ChipDnssdBrowse(serviceName, DnssdServiceProtocol::kDnssdProtocolUdp, Inet::IPAddressType::kAny,
@@ -787,10 +938,28 @@ CHIP_ERROR DiscoveryImplPlatform::DiscoverCommissioners(DiscoveryFilter filter, 
         {
             context.Release();
         }
+
+        return error;
     }
 
     char serviceName[kMaxCommissionerServiceNameSize];
     ReturnErrorOnFailure(MakeServiceTypeName(serviceName, sizeof(serviceName), filter, DiscoveryType::kCommissionerNode));
+
+    if (context.GetDiscoveryMode() == DiscoveryMode::kContinuous)
+    {
+        auto browseDelegate              = std::make_shared<ContinuousBrowseDelegateImpl>(context);
+        GetContinuousBrowses()[&context] = browseDelegate;
+
+        context.Retain();
+        CHIP_ERROR error = ChipDnssdBrowse(serviceName, DnssdServiceProtocol::kDnssdProtocolUdp, Inet::IPAddressType::kAny,
+                                           Inet::InterfaceId::Null(), browseDelegate.get());
+        if (error != CHIP_NO_ERROR)
+        {
+            GetContinuousBrowses().erase(&context);
+            context.Release();
+        }
+        return error;
+    }
 
     intptr_t browseIdentifier;
     // Increase the reference count of the context to keep it alive until HandleNodeBrowse is called back.
@@ -852,14 +1021,20 @@ CHIP_ERROR DiscoveryImplPlatform::StartDiscovery(DiscoveryType type, DiscoveryFi
 CHIP_ERROR DiscoveryImplPlatform::StopDiscovery(DiscoveryContext & context)
 {
     const std::optional<intptr_t> browseIdentifier = context.GetBrowseIdentifier();
-    if (!browseIdentifier.has_value())
+    if (browseIdentifier.has_value())
+    {
+        context.ClearBrowseIdentifier();
+        return ChipDnssdStopBrowse(*browseIdentifier);
+    }
+
+    auto continuousBrowse = GetContinuousBrowses().find(&context);
+    if (continuousBrowse == GetContinuousBrowses().end())
     {
         // No discovery going on.
         return CHIP_NO_ERROR;
     }
 
-    context.ClearBrowseIdentifier();
-    return ChipDnssdStopBrowse(*browseIdentifier);
+    return ChipDnssdStopBrowse(continuousBrowse->second.get());
 }
 
 CHIP_ERROR DiscoveryImplPlatform::ReconfirmRecord(const char * hostname, Inet::IPAddress address, Inet::InterfaceId interfaceId)

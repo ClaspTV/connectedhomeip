@@ -33,4 +33,12 @@ public interface ChipMdnsCallback {
 
   void handleServiceBrowse(
       String[] instanceName, String serviceType, long callbackHandle, long contextHandle);
+
+  void handleServiceBrowseAdd(
+      String instanceName, String serviceType, long callbackHandle, long contextHandle);
+
+  void handleServiceBrowseRemove(
+      String instanceName, String serviceType, long callbackHandle, long contextHandle);
+
+  void handleServiceBrowseStop(long callbackHandle, long contextHandle, int errorCode);
 }
