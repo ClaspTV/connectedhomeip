@@ -62,11 +62,12 @@
     <string name="matter_select_app_launcher_button_text">App Launcher</string>
     <string name="content_app_application_id_prompt_text">Content App Application ID</string>
     <string name="content_app_vendor_id_prompt_text">Content App Vendor ID</string>
-    <string name="default_content_app_application_id_string">com.example.contentapp</string>
+    <string name="default_content_app_application_id_string">tv.vizbee.omnidemo.firetv</string>
     <string name="default_content_app_vendor_id">1111</string>
     <string name="launch_app_button_text">Launch App</string>
     <string name="get_app_status_button_text">Get App Status</string>
     <string name="subscribe_app_status_button_text">Subscribe App Status</string>
+    <string name="get_app_install_status_button_text">Get App Install Status</string>
     <string name="app_launcher_fragment_title">App Launcher</string>
     <string name="launch_app_command_title">Launch App</string>
 

@@ -30,9 +30,16 @@ import com.chip.casting.R;
 import com.matter.casting.core.CastingApp;
 import com.matter.casting.core.CastingPlayer;
 import com.matter.casting.core.Endpoint;
+import com.matter.casting.support.ConnectionCallbacks;
+import com.matter.casting.support.CommissionerDeclaration;
+import com.matter.casting.support.IdentificationDeclarationOptions;
+import com.matter.casting.support.MatterCallback;
+import com.matter.casting.support.MatterError;
+import com.matter.casting.support.TargetAppInfo;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -49,8 +56,12 @@ public class AppLauncherExampleFragment extends Fragment {
   private final CastingPlayer selectedCastingPlayer;
   private final boolean useCommissionerGeneratedPasscode;
 
+  private static final int TARGET_APP_VENDOR_ID = 0x1619;
+  private static final int TARGET_APP_PRODUCT_ID = 0x0101;
+
   private View.OnClickListener launchAppButtonClickListener;
   private View.OnClickListener getAppStatusButtonClickListener;
+  private View.OnClickListener getAppInstallStatusButtonClickListener;
   private View.OnClickListener subscribeAppStatusButtonClickListener;
     String applicationValue = "NOT_FOUND";
     String statusValue = "NOT_FOUND";
@@ -460,6 +471,104 @@ public class AppLauncherExampleFragment extends Fragment {
             });
       };
 
+      // NOTE: BUG: App uninstalled & FireTV restarted ⇒ DOESN’T WORK (commissionerDeclaration.noAppsFound = false)
+      getAppInstallStatusButtonClickListener = v -> {
+          TextView resultView = getView().findViewById(R.id.getAppInstallStatusResult);
+          resultView.setText("Checking app install status...");
+
+          // Step 1: Generate a random instanceName for this UDC session
+          String instanceName = UUID.randomUUID().toString().substring(0, 16);
+          Log.d(TAG, "getAppInstallStatus: instanceName=" + instanceName);
+
+          // Step 2: Build IdentificationDeclarationOptions with noPasscode=true and target app info
+          IdentificationDeclarationOptions idOptions = new IdentificationDeclarationOptions(
+              true,   // noPasscode
+              false,  // cdUponPasscodeDialog
+              false,  // commissionerPasscode
+              false,  // commissionerPasscodeReady
+              false,  // cancelPasscode
+              0       // passcodeLength
+          );
+          idOptions.setInstanceName(instanceName);
+          idOptions.addTargetAppInfo(new TargetAppInfo(TARGET_APP_VENDOR_ID, TARGET_APP_PRODUCT_ID));
+          idOptions.logDetail();
+
+          // Step 3: Set up callbacks to receive the CommissionerDeclaration
+          ConnectionCallbacks connectionCallbacks = new ConnectionCallbacks(
+              // onSuccess - not expected for this flow
+              new MatterCallback<Void>() {
+                  @Override
+                  public void handle(Void response) {
+                      Log.d(TAG, "getAppInstallStatus: onSuccess (unexpected)");
+                      new Handler(Looper.getMainLooper()).post(() ->
+                          resultView.setText("App install status: Unexpected success callback"));
+                  }
+              },
+              // onFailure
+              new MatterCallback<MatterError>() {
+                  @Override
+                  public void handle(MatterError error) {
+                      Log.e(TAG, "getAppInstallStatus: onFailure: " + error);
+                      new Handler(Looper.getMainLooper()).post(() ->
+                          resultView.setText("App install status check failed: " + error));
+                  }
+              },
+              // onCommissionerDeclaration - this is where we get the result
+              new MatterCallback<CommissionerDeclaration>() {
+                  @Override
+                  public void handle(CommissionerDeclaration cd) {
+                      Log.d(TAG, "getAppInstallStatus: CommissionerDeclaration received, noAppsFound=" + cd.getNoAppsFound());
+                      cd.logDetail();
+
+                      boolean appFound = !cd.getNoAppsFound();
+                      String statusMsg = appFound
+                          ? "App IS installed on the target device"
+                          : "App is NOT installed on the target device";
+                      statusMsg += "\n\nVendorID: 0x" + Integer.toHexString(TARGET_APP_VENDOR_ID)
+                          + ", ProductID: 0x" + Integer.toHexString(TARGET_APP_PRODUCT_ID)
+                          + "\n\nCommissionerDeclaration:\n" + cd.toString();
+
+                      final String finalMsg = statusMsg;
+                      new Handler(Looper.getMainLooper()).post(() ->
+                          resultView.setText(finalMsg));
+
+                      // Step 5: Cancel the UDC session by sending IdentificationDeclaration
+                      // with cancelPasscode=true and the same instanceName (per spec 5.3.7.4).
+                      // This directly tells the TV to end the session without side effects.
+                      Log.d(TAG, "getAppInstallStatus: Sending cancelPasscode to end UDC session");
+                      IdentificationDeclarationOptions cancelOptions = new IdentificationDeclarationOptions(
+                          true,   // noPasscode
+                          false,  // cdUponPasscodeDialog
+                          false,  // commissionerPasscode
+                          false,  // commissionerPasscodeReady
+                          true,   // cancelPasscode
+                          0       // passcodeLength
+                      );
+                      cancelOptions.setInstanceName(instanceName);
+                      cancelOptions.addTargetAppInfo(new TargetAppInfo(TARGET_APP_VENDOR_ID, TARGET_APP_PRODUCT_ID));
+
+                      // Use no-op callbacks for the cancel since we don't expect a meaningful response
+                      ConnectionCallbacks cancelCallbacks = new ConnectionCallbacks(
+                          new MatterCallback<Void>() { @Override public void handle(Void r) {} },
+                          new MatterCallback<MatterError>() { @Override public void handle(MatterError e) {} },
+                          null
+                      );
+                      MatterError cancelError = selectedCastingPlayer.sendUDC(cancelCallbacks, cancelOptions);
+                      if (!cancelError.equals(MatterError.NO_ERROR)) {
+                          Log.e(TAG, "getAppInstallStatus: cancel sendUDC failed: " + cancelError);
+                      }
+                  }
+              }
+          );
+
+          // Step 4: Send the IdentificationDeclaration via UDC
+          MatterError error = selectedCastingPlayer.sendUDC(connectionCallbacks, idOptions);
+          if (!error.equals(MatterError.NO_ERROR)) {
+              Log.e(TAG, "getAppInstallStatus: sendUDC failed: " + error);
+              resultView.setText("Failed to send UDC: " + error);
+          }
+      };
+
       subscribeAppStatusButtonClickListener = new View.OnClickListener() {
           @Override
           public void onClick(View v) {
@@ -701,6 +810,7 @@ public class AppLauncherExampleFragment extends Fragment {
     Log.d(TAG, "ContentLauncherLaunchURLExampleFragment.onViewCreated called");
     getView().findViewById(R.id.launchAppButton).setOnClickListener(launchAppButtonClickListener);
     getView().findViewById(R.id.getAppStatusButton).setOnClickListener(getAppStatusButtonClickListener);
+    getView().findViewById(R.id.getAppInstallStatusButton).setOnClickListener(getAppInstallStatusButtonClickListener);
     getView().findViewById(R.id.subscribeAppStatusButton).setOnClickListener(subscribeAppStatusButtonClickListener);
   }
 

@@ -114,6 +114,26 @@
             android:orientation="vertical">
 
             <Button
+                android:id="@+id/getAppInstallStatusButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/get_app_install_status_button_text"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:layout_marginRight="10sp" />
+
+            <TextView
+                android:id="@+id/getAppInstallStatusResult"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <Button
                 android:id="@+id/subscribeAppStatusButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
