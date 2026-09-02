@@ -63,8 +63,6 @@ public class AppLauncherExampleFragment extends Fragment {
   private View.OnClickListener getAppStatusButtonClickListener;
   private View.OnClickListener getAppInstallStatusButtonClickListener;
   private View.OnClickListener subscribeAppStatusButtonClickListener;
-    String applicationValue = "NOT_FOUND";
-    String statusValue = "NOT_FOUND";
 
   public AppLauncherExampleFragment(
       CastingPlayer selectedCastingPlayer, boolean useCommissionerGeneratedPasscode) {
@@ -176,240 +174,18 @@ public class AppLauncherExampleFragment extends Fragment {
                   Optional.of(applicationStruct),
               Optional.empty());
         };
-//    this.getAppStatusButtonClickListener =
-//            v -> {
-//                Endpoint endpoint;
-//                endpoint = EndpointSelectorExample.selectEndpointById(
-//                                selectedCastingPlayer, DEFAULT_ENDPOINT_ID_FOR_CGP_FLOW);
-//                if (endpoint == null) {
-//                    Log.e(TAG, "No Endpoint with sample vendorID found on CastingPlayer");
-//                    return;
-//                }
-//
-//                // get ChipClusters.ApplicationLauncherCluster from the endpoint
-//                ChipClusters.ApplicationLauncherCluster cluster =
-//                        endpoint.getCluster(ChipClusters.ApplicationLauncherCluster.class);
-//                if (cluster == null) {
-//                    Log.e(
-//                            TAG,
-//                            "Could not get ApplicationLauncherCluster for endpoint with ID: " + endpoint.getId());
-//                    return;
-//                }
-//
-//                cluster.readCurrentAppAttribute(new ChipClusters.ApplicationLauncherCluster.CurrentAppAttributeCallback() {
-//
-//                    @Override
-//                    public void onSuccess(ChipStructs.ApplicationLauncherClusterApplicationEPStruct value) {
-//                        Log.d(TAG, "ReadCurrentApp success. Value: " + value);
-//                        new Handler(Looper.getMainLooper())
-//                                .post(
-//                                        () -> {
-//                                            TextView getAppStatusResult = getView().findViewById(R.id.getAppStatusResult);
-//                                            getAppStatusResult.setText(
-//                                                    "ReadCurrentApp result\nValue: " + value);
-//                                        });
-//                    }
-//
-//                    @Override
-//                    public void onError(Exception error) {
-//                        Log.e(TAG, "ReadCurrentApp failure " + error);
-//                        new Handler(Looper.getMainLooper())
-//                                .post(
-//                                        () -> {
-//                                            TextView getAppStatusResult = getView().findViewById(R.id.getAppStatusResult);
-//                                            getAppStatusResult.setText("ReadCurrentApp result\nError: " + error);
-//                                        });
-//                    }
-//
-//                });
-//
-//                // Read AcceptedCommandList
-//                cluster.readAcceptedCommandListAttribute(new ChipClusters.ApplicationLauncherCluster.AcceptedCommandListAttributeCallback() {
-//                    @Override
-//                    public void onSuccess(List<Long> value) {
-//                        Log.d(TAG, "ReadAcceptedCommandList success. Value: " + value);
-//                        new Handler(Looper.getMainLooper())
-//                                .post(
-//                                        () -> {
-//                                            TextView getAppStatusResult = getView().findViewById(R.id.getAppStatusResult);
-//                                            getAppStatusResult.setText(
-//                                                    "ReadAcceptedCommandList result\nValue: " + value);
-//                                        });
-//                    }
-//
-//                    @Override
-//                    public void onError(Exception error) {
-//                        Log.e(TAG, "ReadAcceptedCommandList failure " + error);
-//                        new Handler(Looper.getMainLooper())
-//                                .post(
-//                                        () -> {
-//                                            TextView getAppStatusResult = getView().findViewById(R.id.getAppStatusResult);
-//                                            getAppStatusResult.setText("ReadAcceptedCommandList result\nError: " + error);
-//                                        });
-//                    }
-//                });
-//
-//// Read CatalogList
-//                cluster.readCatalogListAttribute(new ChipClusters.ApplicationLauncherCluster.CatalogListAttributeCallback() {
-//                    @Override
-//                    public void onSuccess(List<Integer> value) {
-//                        Log.d(TAG, "ReadCatalogList success. Value: " + value);
-//                        new Handler(Looper.getMainLooper())
-//                                .post(
-//                                        () -> {
-//                                            TextView getAppStatusResult = getView().findViewById(R.id.getAppStatusResult);
-//                                            getAppStatusResult.setText(
-//                                                    "ReadCatalogList result\nValue: " + value);
-//                                        });
-//                    }
-//
-//                    @Override
-//                    public void onError(Exception error) {
-//                        Log.e(TAG, "ReadCatalogList failure " + error);
-//                        new Handler(Looper.getMainLooper())
-//                                .post(
-//                                        () -> {
-//                                            TextView getAppStatusResult = getView().findViewById(R.id.getAppStatusResult);
-//                                            getAppStatusResult.setText("ReadCatalogList result\nError: " + error);
-//                                        });
-//                    }
-//                });
-//
-//// Read GeneratedCommandList
-//                cluster.readGeneratedCommandListAttribute(new ChipClusters.ApplicationLauncherCluster.GeneratedCommandListAttributeCallback() {
-//                    @Override
-//                    public void onSuccess(List<Long> value) {
-//                        Log.d(TAG, "ReadGeneratedCommandList success. Value: " + value);
-//                        new Handler(Looper.getMainLooper())
-//                                .post(
-//                                        () -> {
-//                                            TextView getAppStatusResult = getView().findViewById(R.id.getAppStatusResult);
-//                                            getAppStatusResult.setText(
-//                                                    "ReadGeneratedCommandList result\nValue: " + value);
-//                                        });
-//                    }
-//
-//                    @Override
-//                    public void onError(Exception error) {
-//                        Log.e(TAG, "ReadGeneratedCommandList failure " + error);
-//                        new Handler(Looper.getMainLooper())
-//                                .post(
-//                                        () -> {
-//                                            TextView getAppStatusResult = getView().findViewById(R.id.getAppStatusResult);
-//                                            getAppStatusResult.setText("ReadGeneratedCommandList result\nError: " + error);
-//                                        });
-//                    }
-//                });
-//
-//// Read AttributeList
-//                cluster.readAttributeListAttribute(new ChipClusters.ApplicationLauncherCluster.AttributeListAttributeCallback() {
-//                    @Override
-//                    public void onSuccess(List<Long> value) {
-//                        Log.d(TAG, "ReadAttributeList success. Value: " + value);
-//                        new Handler(Looper.getMainLooper())
-//                                .post(
-//                                        () -> {
-//                                            TextView getAppStatusResult = getView().findViewById(R.id.getAppStatusResult);
-//                                            getAppStatusResult.setText(
-//                                                    "ReadAttributeList result\nValue: " + value);
-//                                        });
-//                    }
-//
-//                    @Override
-//                    public void onError(Exception error) {
-//                        Log.e(TAG, "ReadAttributeList failure " + error);
-//                        new Handler(Looper.getMainLooper())
-//                                .post(
-//                                        () -> {
-//                                            TextView getAppStatusResult = getView().findViewById(R.id.getAppStatusResult);
-//                                            getAppStatusResult.setText("ReadAttributeList result\nError: " + error);
-//                                        });
-//                    }
-//                });
-//
-//// Read EventList
-//                cluster.readEventListAttribute(new ChipClusters.ApplicationLauncherCluster.EventListAttributeCallback() {
-//                    @Override
-//                    public void onSuccess(List<Long> value) {
-//                        Log.d(TAG, "ReadEventList success. Value: " + value);
-//                        new Handler(Looper.getMainLooper())
-//                                .post(
-//                                        () -> {
-//                                            TextView getAppStatusResult = getView().findViewById(R.id.getAppStatusResult);
-//                                            getAppStatusResult.setText(
-//                                                    "ReadEventList result\nValue: " + value);
-//                                        });
-//                    }
-//
-//                    @Override
-//                    public void onError(Exception error) {
-//                        Log.e(TAG, "ReadEventList failure " + error);
-//                        new Handler(Looper.getMainLooper())
-//                                .post(
-//                                        () -> {
-//                                            TextView getAppStatusResult = getView().findViewById(R.id.getAppStatusResult);
-//                                            getAppStatusResult.setText("ReadEventList result\nError: " + error);
-//                                        });
-//                    }
-//                });
-//
-//// Read FeatureMap
-//                cluster.readFeatureMapAttribute(new ChipClusters.LongAttributeCallback() {
-//                    @Override
-//                    public void onSuccess(long value) {
-//                        Log.d(TAG, "ReadFeatureMap success. Value: " + value);
-//                        new Handler(Looper.getMainLooper())
-//                                .post(
-//                                        () -> {
-//                                            TextView getAppStatusResult = getView().findViewById(R.id.getAppStatusResult);
-//                                            getAppStatusResult.setText(
-//                                                    "ReadFeatureMap result\nValue: " + value);
-//                                        });
-//                    }
-//
-//                    @Override
-//                    public void onError(Exception error) {
-//                        Log.e(TAG, "ReadFeatureMap failure " + error);
-//                        new Handler(Looper.getMainLooper())
-//                                .post(
-//                                        () -> {
-//                                            TextView getAppStatusResult = getView().findViewById(R.id.getAppStatusResult);
-//                                            getAppStatusResult.setText("ReadFeatureMap result\nError: " + error);
-//                                        });
-//                    }
-//                });
-//
-//// Read ClusterRevision
-//                cluster.readClusterRevisionAttribute(new ChipClusters.IntegerAttributeCallback() {
-//                    @Override
-//                    public void onSuccess(int value) {
-//                        Log.d(TAG, "ReadClusterRevision success. Value: " + value);
-//                        new Handler(Looper.getMainLooper())
-//                                .post(
-//                                        () -> {
-//                                            TextView getAppStatusResult = getView().findViewById(R.id.getAppStatusResult);
-//                                            getAppStatusResult.setText(
-//                                                    "ReadClusterRevision result\nValue: " + value);
-//                                        });
-//                    }
-//
-//                    @Override
-//                    public void onError(Exception error) {
-//                        Log.e(TAG, "ReadClusterRevision failure " + error);
-//                        new Handler(Looper.getMainLooper())
-//                                .post(
-//                                        () -> {
-//                                            TextView getAppStatusResult = getView().findViewById(R.id.getAppStatusResult);
-//                                            getAppStatusResult.setText("ReadClusterRevision result\nError: " + error);
-//                                        });
-//                    }
-//                });
-//            };
-
       getAppStatusButtonClickListener = v -> {
-          Endpoint contentAppEndpoint = EndpointSelectorExample.selectFirstEndpointByVID(selectedCastingPlayer);
+          // Find the content app endpoint by target app vendor ID (0x1619)
+          Endpoint contentAppEndpoint = null;
+          if (selectedCastingPlayer != null && selectedCastingPlayer.getEndpoints() != null) {
+              contentAppEndpoint = selectedCastingPlayer.getEndpoints().stream()
+                  .filter(e -> Integer.valueOf(TARGET_APP_VENDOR_ID).equals(e.getVendorId()))
+                      .filter(e -> Integer.valueOf(TARGET_APP_PRODUCT_ID).equals(e.getProductId()))
+                  .findFirst()
+                  .orElse(null);
+          }
             if (contentAppEndpoint == null) {
-                Log.e(TAG, "No Endpoint with sample vendorID found on CastingPlayer");
+                Log.e(TAG, "No Endpoint with vendorID 0x" + Integer.toHexString(TARGET_APP_VENDOR_ID) + " found on CastingPlayer");
                 return;
             }
 
@@ -421,51 +197,36 @@ public class AppLauncherExampleFragment extends Fragment {
                         "Could not get ApplicationBasicCluster for endpoint with ID: " + contentAppEndpoint.getId());
                 return;
             }
-            basicCluster.readApplicationAttribute(new ChipClusters.ApplicationBasicCluster.ApplicationAttributeCallback() {
-
-                @Override
-                public void onSuccess(ChipStructs.ApplicationBasicClusterApplicationStruct value) {
-                    Log.d(TAG, "ReadApplication success. Value: " + value);
-                    new Handler(Looper.getMainLooper())
-                            .post(
-                                    () -> {
-                                        applicationValue = value.toString();
-                                        TextView getAppStatusResult = getView().findViewById(R.id.getAppStatusResult);
-                                        getAppStatusResult.setText("ReadApplication result\napplication: " + applicationValue + " status: " + statusValue);
-                                    });
-                }
-
-                @Override
-                public void onError(Exception error) {
-                    Log.e(TAG, "ReadApplication failure " + error);
-                    new Handler(Looper.getMainLooper())
-                            .post(() -> {
-                                TextView getAppStatusResult = getView().findViewById(R.id.getAppStatusResult);
-                                getAppStatusResult.setText("ReadApplication result\nError: " + error + " application: " + applicationValue + " status: " + statusValue);
-                            });
-                }
-
-            });
             basicCluster.readStatusAttribute(new ChipClusters.IntegerAttributeCallback() {
                 @Override
                 public void onSuccess(int value) {
-                    Log.d(TAG, "ReadStatus success. Value: " + value);
+                    String statusName;
+                    switch (value) {
+                        case 0: statusName = "Stopped"; break;
+                        case 1: statusName = "ActiveVisibleFocus"; break;
+                        case 2: statusName = "ActiveHidden"; break;
+                        case 3: statusName = "ActiveVisibleNotFocus"; break;
+                        default: statusName = "Unknown"; break;
+                    }
+                    Log.d(TAG, "ReadStatus success. Value: " + value + " (" + statusName + ")");
                     new Handler(Looper.getMainLooper())
                                 .post(
                                         () -> {
-                                            statusValue = String.valueOf(value);
                                             TextView getAppStatusResult = getView().findViewById(R.id.getAppStatusResult);
-                                            getAppStatusResult.setText("ReadStatus result\napplication: " + applicationValue + " status: " + statusValue);
+                                            getAppStatusResult.setText(
+                                                "App Status: " + value + " (" + statusName + ")"
+                                                + "\n\n0=Stopped, 1=ActiveVisibleFocus"
+                                                + "\n2=ActiveHidden, 3=ActiveVisibleNotFocus");
                                         });
                 }
 
                 @Override
                 public void onError(Exception error) {
                     Log.e(TAG, "ReadStatus failure " + error);
-                                            new Handler(Looper.getMainLooper())
+                    new Handler(Looper.getMainLooper())
                                 .post(() -> {
                                             TextView getAppStatusResult = getView().findViewById(R.id.getAppStatusResult);
-                                            getAppStatusResult.setText("ReadStatus result\nError: " + error + " application: " + applicationValue + " status: " + statusValue);
+                                            getAppStatusResult.setText("ReadStatus error: " + error);
                                         });
                 }
             });
