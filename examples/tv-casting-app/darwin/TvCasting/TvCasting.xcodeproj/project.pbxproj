@@ -20,26 +20,14 @@
 		3C94377F2B364D510096E5F4 /* MCConnectionExampleViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C94377E2B364D510096E5F4 /* MCConnectionExampleViewModel.swift */; };
 		3C94378E2B3B3CB00096E5F4 /* MCDiscoveryExampleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C94378D2B3B3CB00096E5F4 /* MCDiscoveryExampleView.swift */; };
 		3C9437902B3B3FF90096E5F4 /* MCConnectionExampleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C94378F2B3B3FF90096E5F4 /* MCConnectionExampleView.swift */; };
-		3CA1CA7A28E281080023ED44 /* ClusterSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CA1CA7928E281080023ED44 /* ClusterSelectorView.swift */; };
-		3CA1CA7C28E282150023ED44 /* MediaPlaybackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CA1CA7B28E282150023ED44 /* MediaPlaybackView.swift */; };
-		3CA1CA7E28E284950023ED44 /* MediaPlaybackViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CA1CA7D28E284950023ED44 /* MediaPlaybackViewModel.swift */; };
-		3CAC955B29BA948700BEA5C3 /* ExampleDAC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CAC955A29BA948700BEA5C3 /* ExampleDAC.swift */; };
 		3CC0E8FA2841DD3400EC6A18 /* TvCastingApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CC0E8F92841DD3400EC6A18 /* TvCastingApp.swift */; };
 		3CC0E8FC2841DD3400EC6A18 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CC0E8FB2841DD3400EC6A18 /* ContentView.swift */; };
 		3CC0E8FE2841DD3500EC6A18 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3CC0E8FD2841DD3500EC6A18 /* Assets.xcassets */; };
 		3CC0E9012841DD3500EC6A18 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3CC0E9002841DD3500EC6A18 /* Preview Assets.xcassets */; };
 		3CCB872B28690A5D00771BAD /* MatterTvCastingBridge.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3CCB872A28690A5D00771BAD /* MatterTvCastingBridge.framework */; };
 		3CCB872C28690A5D00771BAD /* MatterTvCastingBridge.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3CCB872A28690A5D00771BAD /* MatterTvCastingBridge.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		3CCB8745286A5D0F00771BAD /* CommissionerDiscoveryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C7507AC285299DF00D7DB3A /* CommissionerDiscoveryView.swift */; };
-		3CCB8746286A5D0F00771BAD /* CommissionerDiscoveryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C7507B62853A3AD00D7DB3A /* CommissionerDiscoveryViewModel.swift */; };
-		3CCB8747286A5D0F00771BAD /* CommissioningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C7507AE28529A5F00D7DB3A /* CommissioningView.swift */; };
-		3CCB8748286A5D0F00771BAD /* CommissioningViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C7507B82853EFF000D7DB3A /* CommissioningViewModel.swift */; };
-		3CCB8749286A5D0F00771BAD /* ContentLauncherView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CA19434285BA780004768D5 /* ContentLauncherView.swift */; };
-		3CCB874A286A5D0F00771BAD /* ContentLauncherViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CA19436285BA877004768D5 /* ContentLauncherViewModel.swift */; };
 		AA000001AABBCCDD00112233 /* MCAppLauncherExampleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000003AABBCCDD00112233 /* MCAppLauncherExampleView.swift */; };
 		AA000002AABBCCDD00112233 /* MCAppLauncherExampleViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000004AABBCCDD00112233 /* MCAppLauncherExampleViewModel.swift */; };
-		EAF14299296D561900E17793 /* CertTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF14298296D561900E17793 /* CertTestView.swift */; };
-		EAF1429B296D57DF00E17793 /* CertTestViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF1429A296D57DF00E17793 /* CertTestViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -67,20 +55,10 @@
 		3C621CB42B607FFD005CDBA3 /* MCActionSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCActionSelectorView.swift; sourceTree = "<group>"; };
 		3C6920492AA1368F00D0F613 /* MCInitializationExample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCInitializationExample.swift; sourceTree = "<group>"; };
 		3C75075E284C1DF800D7DB3A /* TvCasting.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TvCasting.entitlements; sourceTree = "<group>"; };
-		3C7507AC285299DF00D7DB3A /* CommissionerDiscoveryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommissionerDiscoveryView.swift; sourceTree = "<group>"; };
-		3C7507AE28529A5F00D7DB3A /* CommissioningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommissioningView.swift; sourceTree = "<group>"; };
-		3C7507B62853A3AD00D7DB3A /* CommissionerDiscoveryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommissionerDiscoveryViewModel.swift; sourceTree = "<group>"; };
-		3C7507B82853EFF000D7DB3A /* CommissioningViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommissioningViewModel.swift; sourceTree = "<group>"; };
 		3C94377C2B364D380096E5F4 /* MCDiscoveryExampleViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCDiscoveryExampleViewModel.swift; sourceTree = "<group>"; };
 		3C94377E2B364D510096E5F4 /* MCConnectionExampleViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCConnectionExampleViewModel.swift; sourceTree = "<group>"; };
 		3C94378D2B3B3CB00096E5F4 /* MCDiscoveryExampleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCDiscoveryExampleView.swift; sourceTree = "<group>"; };
 		3C94378F2B3B3FF90096E5F4 /* MCConnectionExampleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCConnectionExampleView.swift; sourceTree = "<group>"; };
-		3CA19434285BA780004768D5 /* ContentLauncherView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentLauncherView.swift; sourceTree = "<group>"; };
-		3CA19436285BA877004768D5 /* ContentLauncherViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentLauncherViewModel.swift; sourceTree = "<group>"; };
-		3CA1CA7928E281080023ED44 /* ClusterSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClusterSelectorView.swift; sourceTree = "<group>"; };
-		3CA1CA7B28E282150023ED44 /* MediaPlaybackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPlaybackView.swift; sourceTree = "<group>"; };
-		3CA1CA7D28E284950023ED44 /* MediaPlaybackViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPlaybackViewModel.swift; sourceTree = "<group>"; };
-		3CAC955A29BA948700BEA5C3 /* ExampleDAC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExampleDAC.swift; sourceTree = "<group>"; };
 		3CC0E8F62841DD3400EC6A18 /* TvCasting.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TvCasting.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3CC0E8F92841DD3400EC6A18 /* TvCastingApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TvCastingApp.swift; sourceTree = "<group>"; };
 		3CC0E8FB2841DD3400EC6A18 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -90,8 +68,6 @@
 		3CCB872A28690A5D00771BAD /* MatterTvCastingBridge.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = MatterTvCastingBridge.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA000003AABBCCDD00112233 /* MCAppLauncherExampleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCAppLauncherExampleView.swift; sourceTree = "<group>"; };
 		AA000004AABBCCDD00112233 /* MCAppLauncherExampleViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCAppLauncherExampleViewModel.swift; sourceTree = "<group>"; };
-		EAF14298296D561900E17793 /* CertTestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertTestView.swift; sourceTree = "<group>"; };
-		EAF1429A296D57DF00E17793 /* CertTestViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertTestViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -109,18 +85,6 @@
 		3C996C2C2BD9C2B40027BD8A /* compat */ = {
 			isa = PBXGroup;
 			children = (
-				3C7507AC285299DF00D7DB3A /* CommissionerDiscoveryView.swift */,
-				3C7507B62853A3AD00D7DB3A /* CommissionerDiscoveryViewModel.swift */,
-				3C7507AE28529A5F00D7DB3A /* CommissioningView.swift */,
-				3C7507B82853EFF000D7DB3A /* CommissioningViewModel.swift */,
-				3CA1CA7928E281080023ED44 /* ClusterSelectorView.swift */,
-				3CA19434285BA780004768D5 /* ContentLauncherView.swift */,
-				3CA19436285BA877004768D5 /* ContentLauncherViewModel.swift */,
-				3CA1CA7B28E282150023ED44 /* MediaPlaybackView.swift */,
-				3CA1CA7D28E284950023ED44 /* MediaPlaybackViewModel.swift */,
-				EAF14298296D561900E17793 /* CertTestView.swift */,
-				EAF1429A296D57DF00E17793 /* CertTestViewModel.swift */,
-				3CAC955A29BA948700BEA5C3 /* ExampleDAC.swift */,
 			);
 			path = compat;
 			sourceTree = "<group>";
@@ -274,28 +238,16 @@
 			files = (
 				3C94377F2B364D510096E5F4 /* MCConnectionExampleViewModel.swift in Sources */,
 				3C4058702B632DDB00C7C6D6 /* MCMediaPlaybackSubscribeToCurrentStateExampleViewModel.swift in Sources */,
-				3CCB8745286A5D0F00771BAD /* CommissionerDiscoveryView.swift in Sources */,
 				39231BEA2C24F90200ADFB3A /* MCEndpointSelector.swift in Sources */,
 				3C621CB12B6078A9005CDBA3 /* MCApplicationBasicReadVendorIDExampleView.swift in Sources */,
-				3CCB8746286A5D0F00771BAD /* CommissionerDiscoveryViewModel.swift in Sources */,
 				3C4F52302B51F32000BB8A10 /* MCContentLauncherLaunchURLExampleViewModel.swift in Sources */,
 				3C621CB32B6078B7005CDBA3 /* MCApplicationBasicReadVendorIDExampleViewModel.swift in Sources */,
 				3C621CB52B607FFD005CDBA3 /* MCActionSelectorView.swift in Sources */,
-				3CA1CA7A28E281080023ED44 /* ClusterSelectorView.swift in Sources */,
 				3C94378E2B3B3CB00096E5F4 /* MCDiscoveryExampleView.swift in Sources */,
-				EAF14299296D561900E17793 /* CertTestView.swift in Sources */,
 				3C69204A2AA1368F00D0F613 /* MCInitializationExample.swift in Sources */,
 				3C94377D2B364D380096E5F4 /* MCDiscoveryExampleViewModel.swift in Sources */,
-				3CCB8747286A5D0F00771BAD /* CommissioningView.swift in Sources */,
-				3CCB8748286A5D0F00771BAD /* CommissioningViewModel.swift in Sources */,
 				3C4F52322B5721D000BB8A10 /* MCContentLauncherLaunchURLExampleView.swift in Sources */,
-				3CAC955B29BA948700BEA5C3 /* ExampleDAC.swift in Sources */,
-				3CA1CA7E28E284950023ED44 /* MediaPlaybackViewModel.swift in Sources */,
-				3CCB8749286A5D0F00771BAD /* ContentLauncherView.swift in Sources */,
-				3CCB874A286A5D0F00771BAD /* ContentLauncherViewModel.swift in Sources */,
-				EAF1429B296D57DF00E17793 /* CertTestViewModel.swift in Sources */,
 				3CC0E8FC2841DD3400EC6A18 /* ContentView.swift in Sources */,
-				3CA1CA7C28E282150023ED44 /* MediaPlaybackView.swift in Sources */,
 				3CC0E8FA2841DD3400EC6A18 /* TvCastingApp.swift in Sources */,
 				3C40586E2B632DC500C7C6D6 /* MCMediaPlaybackSubscribeToCurrentStateExampleView.swift in Sources */,
 				3C9437902B3B3FF90096E5F4 /* MCConnectionExampleView.swift in Sources */,
