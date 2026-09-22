@@ -67,7 +67,7 @@
 		3CD73F1E2A9E83C1009D82D1 /* MCCommissionableDataProvider.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3CD73F1D2A9E83C1009D82D1 /* MCCommissionableDataProvider.mm */; };
 		3CD73F202A9EA060009D82D1 /* MCDeviceAttestationCredentials.h in Headers */ = {isa = PBXBuildFile; fileRef = 3CD73F1F2A9EA060009D82D1 /* MCDeviceAttestationCredentials.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3CD73F222A9EA078009D82D1 /* MCDeviceAttestationCredentials.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3CD73F212A9EA077009D82D1 /* MCDeviceAttestationCredentials.mm */; };
-		3CD73F242B1EA001009D82D1 /* MCDeviceInstanceInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 3CD73F232B1EA001009D82D1 /* MCDeviceInstanceInfo.h */; };
+		3CD73F242B1EA001009D82D1 /* MCDeviceInstanceInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 3CD73F232B1EA001009D82D1 /* MCDeviceInstanceInfo.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3CD73F262B1EA002009D82D1 /* MCDeviceInstanceInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 3CD73F252B1EA002009D82D1 /* MCDeviceInstanceInfo.m */; };
 		3CD73F282B1EA003009D82D1 /* MCDeviceInstanceInfoProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = 3CD73F272B1EA003009D82D1 /* MCDeviceInstanceInfoProvider.h */; };
 		3CD73F2A2B1EA004009D82D1 /* MCDeviceInstanceInfoProvider.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3CD73F292B1EA004009D82D1 /* MCDeviceInstanceInfoProvider.mm */; };
